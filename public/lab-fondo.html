@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070D">
+<title>Laboratorio del fondo — topográfica</title>
+</head>
+<body>
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+  LABORATORIO DEL FONDO — para que Carlos ajuste los números con el dedo.
+
+  Decisión de Carlos del 2026-08-05 (noche): el objetivo es la TOPOGRÁFICA PURA,
+  no la mezcla. Sus palabras: «el tema de la mezcla es que las líneas se cruzan
+  de lado a lado y eso no me encantó». Los cruces venían de superponer la seda
+  encima de la topográfica; aquí la seda no existe.
+
+  Pidió además: líneas MÁS FINAS y MÁS DEFINIDAS.
+
+  Qué cambia respecto al shader que se rechazó:
+    · Aquel dibujaba isolíneas de un ruido fbm 2D → manchas irregulares, sin
+      dirección, que se leían a «rayas densas y duras sin sentido».
+    · Este dibuja LÍNEAS HORIZONTALES APILADAS desplazadas por un campo de
+      altura, que es lo que hace la referencia aprobada. El orden es lo que da
+      el aire de instrumento.
+    · La luz ilumina cada tramo según la NORMAL DE LA CURVA (anisotrópico),
+      no según la normal 3D de una superficie. Es lo que produce el barrido.
+
+  Este archivo NO es el producto. Es el banco de pruebas del que salen los
+  números que van a DIRECCION-DE-ARTE.md y de ahí al shader de OGL.
+═══════════════════════════════════════════════════════════════════════════════
+-->
+
+<canvas id="lienzo"></canvas>
+
+<div id="velo" hidden></div>
+
+<div id="contenido" hidden>
+  <div class="bloque">
+    <h1>Carlos Álvarez</h1>
+    <p class="lugar">Querétaro, México</p>
+    <p class="tesis">Soy un emprendedor que combina tecnología, creatividad e innovación
+      para convertir ideas en soluciones que ayuden a la gente.</p>
+  </div>
+</div>
+
+<button id="abrir" aria-label="Ajustes">Ajustes</button>
+
+<aside id="panel" hidden>
+  <header>
+    <strong>Fondo topográfico</strong>
+    <button id="cerrar" aria-label="Cerrar">✕</button>
+  </header>
+
+  <div class="marcas">
+    <button class="marca activo" data-m="hub">Hub</button>
+    <button class="marca" data-m="alsai">ALSAI</button>
+    <button class="marca" data-m="blindafon">Blindafón</button>
+  </div>
+
+  <label>Líneas <output id="o-dens"></output>
+    <input type="range" id="dens" min="16" max="64" step="1" value="34"></label>
+
+  <label>Grosor <output id="o-grosor"></output>
+    <input type="range" id="grosor" min="0.30" max="2.00" step="0.05" value="0.75"></label>
+
+  <label>Nitidez <output id="o-nitidez"></output>
+    <input type="range" id="nitidez" min="0.30" max="1.50" step="0.05" value="0.70"></label>
+
+  <label>Dureza del brillo <output id="o-pot"></output>
+    <input type="range" id="pot" min="3" max="24" step="0.5" value="11"></label>
+
+  <label>Relieve <output id="o-amp"></output>
+    <input type="range" id="amp" min="0.010" max="0.140" step="0.005" value="0.055"></label>
+
+  <label>Velocidad de las ondas <output id="o-vel"></output>
+    <input type="range" id="vel" min="0" max="2.0" step="0.05" value="1.00"></label>
+
+  <label>Base visible <output id="o-piso"></output>
+    <input type="range" id="piso" min="0.00" max="0.20" step="0.005" value="0.035"></label>
+
+  <label>Calma bajo el texto <output id="o-calma"></output>
+    <input type="range" id="calma" min="0.00" max="1.00" step="0.05" value="0.85"></label>
+
+  <label>Velo bajo el texto <output id="o-velo"></output>
+    <input type="range" id="velo" min="0.00" max="1.00" step="0.05" value="0.35"></label>
+
+  <div class="conmutadores">
+    <button id="ver-texto">Ver texto encima</button>
+    <button id="copiar">Copiar valores</button>
+  </div>
+
+  <p id="estado-giro">Giroscopio: <b>sin datos</b> — toca la pantalla</p>
+</aside>
+
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#05070D;overflow:hidden;
+    font-family:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  #lienzo{position:fixed;inset:0;width:100%;height:100%;display:block}
+
+  #contenido{position:fixed;inset:0;display:flex;align-items:flex-end;
+    padding:0 1.25rem 22vh;pointer-events:none}
+  /* Sin esto el atributo hidden no oculta nada: el display explícito lo anula. */
+  #contenido[hidden],#panel[hidden],#velo[hidden]{display:none}
+
+  /* EL VELO. El fondo topográfico en su pico de brillo atraviesa el texto y lo
+     vuelve ilegible: es la causa real de «al interactuar el fondo empeora».
+     Este degradado da un lecho limpio al contenido sin apagar el fondo arriba,
+     donde es justo donde luce. Su altura la marca el bloque de texto. */
+  #velo{position:fixed;left:0;right:0;bottom:0;height:62%;pointer-events:none;
+    background:linear-gradient(to top,
+      rgba(var(--velo-rgb,5,7,13),var(--velo,.80)) 0%,
+      rgba(var(--velo-rgb,5,7,13),calc(var(--velo,.80) * .92)) 34%,
+      rgba(var(--velo-rgb,5,7,13),calc(var(--velo,.80) * .55)) 66%,
+      rgba(var(--velo-rgb,5,7,13),0) 100%)}
+  .bloque{color:#F2F0EB;max-width:22rem}
+  .bloque h1{margin:0;font-size:clamp(2.75rem,12vw,4rem);line-height:.95;
+    letter-spacing:-.035em;font-weight:700}
+  .lugar{margin:.6rem 0 0;font-size:.8125rem;letter-spacing:.08em;
+    text-transform:uppercase;color:#8A93A6}
+  .tesis{margin:1.4rem 0 0;font-size:1.0625rem;line-height:1.55;color:#C9CEDA}
+
+  #abrir{position:fixed;top:max(.9rem,env(safe-area-inset-top));right:.9rem;z-index:9;
+    background:rgba(10,13,22,.72);color:#E8E6E1;border:1px solid rgba(242,240,235,.16);
+    border-radius:999px;padding:.55rem 1.1rem;font:inherit;font-size:.8125rem;
+    backdrop-filter:blur(12px)}
+
+  #panel{position:fixed;left:0;right:0;bottom:0;z-index:10;
+    background:rgba(8,10,16,.93);backdrop-filter:blur(20px);
+    border-top:1px solid rgba(242,240,235,.12);
+    padding:1rem 1.1rem calc(1.1rem + env(safe-area-inset-bottom));
+    color:#E8E6E1;font-size:.8125rem;max-height:82vh;overflow-y:auto}
+  #panel header{display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:.9rem}
+  #panel header strong{font-size:.9375rem}
+  #cerrar{background:none;border:0;color:#8A93A6;font-size:1.1rem;padding:.2rem .5rem}
+
+  .marcas{display:flex;gap:.5rem;margin-bottom:1rem}
+  .marca{flex:1;background:transparent;color:#C9CEDA;border:1px solid rgba(242,240,235,.16);
+    border-radius:9px;padding:.6rem;font:inherit;font-size:.8125rem}
+  .marca.activo{background:#E8E6E1;color:#0A0D16;border-color:#E8E6E1}
+
+  #panel label{display:block;margin-bottom:.85rem;color:#9AA3B4}
+  #panel output{float:right;color:#F2F0EB;font-variant-numeric:tabular-nums}
+  #panel input[type=range]{width:100%;margin-top:.45rem;accent-color:#C8CEDA;height:26px}
+
+  .conmutadores{display:flex;gap:.5rem;margin:.4rem 0 .9rem}
+  .conmutadores button{flex:1;background:rgba(242,240,235,.06);color:#E8E6E1;
+    border:1px solid rgba(242,240,235,.16);border-radius:9px;padding:.65rem;
+    font:inherit;font-size:.8125rem}
+  #estado-giro{margin:0;color:#6F7787;font-size:.75rem}
+  #estado-giro b{color:#C9CEDA}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+/* ─────────────────────────────────────────────────────────────────────────
+   PALETAS — los mismos valores que src/config/paleta.ts y tokens.css.
+   ───────────────────────────────────────────────────────────────────────── */
+var PAL = {
+  hub:       {bg:[5,7,13],   a1:[200,206,218], a2:[124,134,152]},
+  alsai:     {bg:[4,10,22],  a1:[55,226,228],  a2:[27,143,155]},
+  blindafon: {bg:[10,14,24], a1:[241,139,59],  a2:[79,195,255]}
+};
+
+var VERT = [
+'attribute vec2 position;',
+'varying vec2 vUv;',
+'void main(){ vUv = position*0.5 + 0.5; gl_Position = vec4(position,0.0,1.0); }'
+].join('\n');
+
+/* ─────────────────────────────────────────────────────────────────────────
+   EL SHADER. Líneas horizontales apiladas, desplazadas por un campo de
+   altura, iluminadas por la normal de cada curva contra UNA luz.
+
+   La inversión que lo hace posible en un fragment shader: en vez de recorrer
+   las líneas y dibujarlas (como hace la maqueta en canvas 2D), para cada
+   píxel se calcula A QUÉ LÍNEA pertenece resolviendo la altura hacia atrás.
+   fract() da la distancia a la línea más cercana y fwidth() mantiene el
+   grosor constante en pantalla, que es lo que evita el emplastado.
+   ───────────────────────────────────────────────────────────────────────── */
+var FRAG = [
+'#extension GL_OES_standard_derivatives : enable',
+'precision highp float;',
+'varying vec2 vUv;',
+'uniform vec2  uRes;',
+'uniform float uT;',
+'uniform vec2  uLuz;',
+'uniform vec3  uFondo, uAcento, uAcento2;',
+'uniform float uDens, uGrosor, uNitidez, uPot, uAmp, uPiso, uCalma;',
+
+/* Campo de altura de la referencia aprobada: dos senos cruzados. Nada de fbm:
+   el ruido daba contornos irregulares y ese fue justo el aspecto rechazado. */
+'float campo(float u, float v, float t){',
+'  return sin(u*4.2 + t*0.28) * cos(v*3.6 - t*0.20)',
+'       + sin((u+v)*5.1 - t*0.16) * 0.55;',
+'}',
+/* Derivada analítica respecto a u: la pendiente de la curva en ese punto. */
+'float pendiente(float u, float v, float t){',
+'  return 4.2 * cos(u*4.2 + t*0.28) * cos(v*3.6 - t*0.20)',
+'       + 5.1 * 0.55 * cos((u+v)*5.1 - t*0.16);',
+'}',
+
+'void main(){',
+'  vec2  uv = vUv;',
+'  float u  = uv.x;',
+'  float v  = 1.0 - uv.y;',          /* y hacia abajo, como en la maqueta */
+'  float t  = uT;',
+
+/* La luz desplaza el apilado verticalmente, igual que la maqueta. */
+'  float desplaz = uLuz.y * 0.026;',
+
+/* LA CALMA. El relieve se aplana y se apaga donde vive el texto, como si las
+   letras tuvieran peso sobre la tela. Resuelve la legibilidad sin meter una
+   caja ni un panel de vidrio: no hay recuadro, hay una zona en reposo. */
+'  float calma = smoothstep(0.40, 0.72, v) * uCalma;',
+'  float ampEf = uAmp * mix(1.0, 0.45, calma);',
+
+/* Índice de línea continuo. Los enteros son las líneas. */
+'  float S = ((v - 0.02 - campo(u, v, t) * ampEf - desplaz) / 0.98) * uDens;',
+'  float f = fract(S);',
+'  float d = min(f, 1.0 - f);',      /* distancia a la línea más cercana */
+'  float w = max(fwidth(S), 1e-6);',
+'  float dPx = d / w;',              /* la misma distancia, ya en píxeles */
+
+/* Normal 2D de la curva, en píxeles. La pendiente vertical viene del campo. */
+'  float dyduPx = pendiente(u, v, t) * ampEf * uRes.y;',
+'  vec2  n = normalize(vec2(-dyduPx, uRes.x));',
+
+/* UNA luz. El giroscopio la mueve, con inercia larga.
+   El eje Y va invertido respecto a uLuz porque aquí v crece hacia abajo, igual
+   que en la maqueta. El -0.55 es el sesgo hacia arriba de la referencia: sin él
+   la luz se queda centrada y el barrido no se percibe. */
+'  vec2  L  = normalize(vec2(uLuz.x * 1.1, -uLuz.y * 1.1 - 0.55) + vec2(1e-5));',
+'  float sp = pow(abs(dot(n, L)), uPot);',
+
+/* El brillo engorda la línea: es lo que hace que la luz se sienta recorrer.
+   uGrosor llega en píxeles de dispositivo (el JS ya lo multiplicó por el dpr),
+   así que el mando se lee en píxeles CSS y no cambia de sentido entre teléfonos. */
+'  float grosorPx = uGrosor * (1.0 + sp * 1.5);',
+'  float mitad = grosorPx * 0.5;',
+/* Nitidez alta = borde duro y línea definida. Baja = línea difusa. */
+'  float suave = mix(1.30, 0.28, clamp(uNitidez, 0.0, 1.0));',
+'  float linea = 1.0 - smoothstep(mitad, mitad + suave, dPx);',
+
+/* El recorrido de color que le gustó a Carlos: acento-2 → acento → blanco. */
+'  vec3 col = sp > 0.35',
+'    ? mix(uAcento, vec3(1.0), clamp((sp - 0.35) * 1.5, 0.0, 1.0))',
+'    : mix(uAcento2, uAcento, clamp(sp * 2.2, 0.0, 1.0));',
+
+'  float alfa = (uPiso + sp * 0.80) * mix(1.0, 0.22, calma);',
+'  vec3 salida = uFondo + linea * col * alfa;',
+
+/* Viñeta: hunde los bordes, sube el centro. Sin esto se ve plano. */
+'  float vig = smoothstep(1.05, 0.30, distance(uv, vec2(0.5, 0.55)) * 1.55);',
+'  salida *= mix(0.50, 1.0, vig);',
+
+/* Grano: mata el bandeo en degradados oscuros sobre OLED. */
+'  salida += (fract(sin(dot(gl_FragCoord.xy, vec2(127.1, 311.7))) * 43758.5) - 0.5) * 0.010;',
+
+'  gl_FragColor = vec4(salida, 1.0);',
+'}'
+].join('\n');
+
+/* ── Arranque de WebGL ──────────────────────────────────────────────────── */
+var lienzo = document.getElementById('lienzo');
+var gl = lienzo.getContext('webgl', {antialias:true, alpha:false, powerPreference:'high-performance'});
+if (!gl) { document.body.innerHTML = '<p style="color:#fff;padding:2rem">Sin WebGL.</p>'; return; }
+gl.getExtension('OES_standard_derivatives');
+
+function compilar(tipo, fuente){
+  var s = gl.createShader(tipo);
+  gl.shaderSource(s, fuente); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+var prog = gl.createProgram();
+gl.attachShader(prog, compilar(gl.VERTEX_SHADER, VERT));
+gl.attachShader(prog, compilar(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+
+var buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+var locPos = gl.getAttribLocation(prog, 'position');
+gl.enableVertexAttribArray(locPos);
+gl.vertexAttribPointer(locPos, 2, gl.FLOAT, false, 0, 0);
+
+var U = {};
+['uRes','uT','uLuz','uFondo','uAcento','uAcento2','uDens','uGrosor','uNitidez','uPot','uAmp','uPiso','uCalma']
+  .forEach(function(n){ U[n] = gl.getUniformLocation(prog, n); });
+
+function medir(){
+  var dpr = Math.min(devicePixelRatio || 1, 2);
+  lienzo.width  = Math.round(innerWidth  * dpr);
+  lienzo.height = Math.round(innerHeight * dpr);
+  gl.viewport(0, 0, lienzo.width, lienzo.height);
+}
+medir(); addEventListener('resize', medir);
+
+/* ── Controles ──────────────────────────────────────────────────────────── */
+var mandos = ['dens','grosor','nitidez','pot','amp','vel','piso','calma','velo'];
+var val = {};
+mandos.forEach(function(id){
+  var el = document.getElementById(id), out = document.getElementById('o-' + id);
+  function refrescar(){ val[id] = parseFloat(el.value); out.textContent = el.value; }
+  el.addEventListener('input', refrescar); refrescar();
+});
+
+var panel = document.getElementById('panel');
+document.getElementById('abrir').addEventListener('click', function(){ panel.hidden = false; });
+document.getElementById('cerrar').addEventListener('click', function(){ panel.hidden = true; });
+
+var contenido = document.getElementById('contenido');
+var elVelo = document.getElementById('velo');
+document.getElementById('ver-texto').addEventListener('click', function(){
+  contenido.hidden = !contenido.hidden;
+  elVelo.hidden = contenido.hidden;
+  this.textContent = contenido.hidden ? 'Ver texto encima' : 'Ocultar texto';
+});
+
+document.getElementById('copiar').addEventListener('click', function(){
+  var texto = 'DENS ' + val.dens + ' · GROSOR ' + val.grosor + ' · NITIDEZ ' + val.nitidez +
+              ' · POT ' + val.pot + ' · RELIEVE ' + val.amp + ' · VEL ' + val.vel +
+              ' · PISO ' + val.piso;
+  var ok = function(){ document.getElementById('copiar').textContent = '¡Copiado!'; };
+  if (navigator.clipboard) navigator.clipboard.writeText(texto).then(ok, function(){ alert(texto); });
+  else alert(texto);
+});
+
+var dst = PAL.hub;
+var cur = {bg:PAL.hub.bg.slice(), a1:PAL.hub.a1.slice(), a2:PAL.hub.a2.slice()};
+Array.prototype.forEach.call(document.querySelectorAll('.marca'), function(b){
+  b.addEventListener('click', function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.marca'), function(x){
+      x.classList.remove('activo');
+    });
+    b.classList.add('activo');
+    dst = PAL[b.dataset.m];
+  });
+});
+
+/* ── La luz: giroscopio con inercia larga ───────────────────────────────────
+   OMEGA 1.4, no 2.6. Más bajo = la luz llega DESPUÉS del gesto y se ve
+   RECORRER la pantalla, en vez de pasarse de largo sin que se perciba.
+   ───────────────────────────────────────────────────────────────────────── */
+var OMEGA = 1.4;
+var destino = {x:0, y:0}, actual = {x:0, y:0}, vel2 = {x:0, y:0};
+var hayGiro = false, hayPuntero = false;
+var estadoGiro = document.getElementById('estado-giro');
+
+addEventListener('deviceorientation', function(e){
+  if (e.gamma === null || e.beta === null) return;
+  hayGiro = true;
+  estadoGiro.innerHTML = 'Giroscopio: <b>activo</b>';
+  destino.x = Math.max(-1, Math.min(1, e.gamma / 32));
+  destino.y = Math.max(-1, Math.min(1, (e.beta - 45) / 32));
+});
+
+addEventListener('pointermove', function(e){
+  if (hayGiro) return;
+  hayPuntero = true;
+  destino.x = (e.clientX / innerWidth) * 2 - 1;
+  destino.y = -((e.clientY / innerHeight) * 2 - 1);
+});
+
+/* iOS 13+ exige un gesto del usuario. Se pide en el PRIMER toque, nunca al
+   cargar: al cargar falla en silencio. Y exige HTTPS. */
+addEventListener('pointerdown', function pedir(){
+  var DOE = window.DeviceOrientationEvent;
+  if (DOE && typeof DOE.requestPermission === 'function') {
+    DOE.requestPermission().then(function(r){
+      estadoGiro.innerHTML = 'Giroscopio: <b>' + r + '</b>' +
+        (location.protocol === 'https:' ? '' : ' — hace falta HTTPS');
+    }).catch(function(){
+      estadoGiro.innerHTML = 'Giroscopio: <b>denegado</b>';
+    });
+  }
+  removeEventListener('pointerdown', pedir);
+}, {once:true});
+
+function lerp3(a, b, t){ for (var i = 0; i < 3; i++) a[i] += (b[i] - a[i]) * t; }
+
+var t0 = performance.now(), tOndas = 0, tPrev = t0;
+function frame(now){
+  var dt = Math.min((now - tPrev) / 1000, 0.05); tPrev = now;
+  tOndas += dt * (val.vel || 0);
+
+  /* Sin giroscopio y sin ratón: órbita lenta. El fondo nunca parece roto. */
+  if (!hayGiro && !hayPuntero) {
+    var s = (now - t0) / 1000;
+    destino.x = Math.cos(s * 0.22) * 0.55;
+    destino.y = Math.sin(s * 0.17) * 0.45;
+  }
+  ['x','y'].forEach(function(eje){
+    var a = OMEGA * OMEGA * (destino[eje] - actual[eje]) - 2 * OMEGA * vel2[eje];
+    vel2[eje] += a * dt;
+    actual[eje] += vel2[eje] * dt;
+  });
+
+  lerp3(cur.bg, dst.bg, 0.05); lerp3(cur.a1, dst.a1, 0.05); lerp3(cur.a2, dst.a2, 0.05);
+
+  // El velo lleva el color del fondo de la marca activa, no un negro genérico.
+  var raiz = document.documentElement;
+  raiz.style.setProperty('--velo', String(val.velo));
+  raiz.style.setProperty('--velo-rgb',
+    (cur.bg[0]|0) + ',' + (cur.bg[1]|0) + ',' + (cur.bg[2]|0));
+
+  gl.uniform2f(U.uRes, lienzo.width, lienzo.height);
+  gl.uniform1f(U.uT, tOndas);
+  gl.uniform2f(U.uLuz, actual.x, actual.y);
+  gl.uniform3f(U.uFondo,   cur.bg[0]/255, cur.bg[1]/255, cur.bg[2]/255);
+  gl.uniform3f(U.uAcento,  cur.a1[0]/255, cur.a1[1]/255, cur.a1[2]/255);
+  gl.uniform3f(U.uAcento2, cur.a2[0]/255, cur.a2[1]/255, cur.a2[2]/255);
+  gl.uniform1f(U.uDens,    val.dens);
+  // El grosor se manda en píxeles de dispositivo para que el mando sea en px CSS.
+  gl.uniform1f(U.uGrosor,  val.grosor * Math.min(devicePixelRatio || 1, 2));
+  gl.uniform1f(U.uNitidez, val.nitidez);
+  gl.uniform1f(U.uPot,     val.pot);
+  gl.uniform1f(U.uAmp,     val.amp);
+  gl.uniform1f(U.uPiso,    val.piso);
+  // La calma solo actúa cuando hay texto que proteger.
+  gl.uniform1f(U.uCalma,   contenido.hidden ? 0 : val.calma);
+
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
