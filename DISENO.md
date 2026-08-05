@@ -191,6 +191,25 @@ no es un documento y Carlos no le veía sentido. Tenía razón.)*
 
 ## 7-bis. El relieve — el fondo
 
+> **CORREGIDO LA NOCHE DEL 2026-08-05, con la tarjeta ya probada en el teléfono real.**
+> Tres cambios que mandan sobre todo lo que sigue en esta sección:
+>
+> 1. **Topográfica pura, sin seda.** La mezcla queda descartada: la seda superpuesta
+>    cruzaba líneas de lado a lado y a Carlos no le gustó. Solo líneas horizontales
+>    apiladas.
+> 2. **La luz responde rápido, no lenta.** La inercia larga (OMEGA 1.4, asentamiento
+>    ~3,3 s) se revierte: se sentía como un retraso, no como un barrido.
+>    Vigente **OMEGA ≈ 14** y **±12°** de recorrido completo, con **autocalibrado**
+>    de la primera lectura. La gente casi no mueve el teléfono.
+> 3. **La calma.** El relieve se aplana y se apaga bajo el texto. Sin esta capa el
+>    fondo en su pico atraviesa el párrafo y lo vuelve ilegible — es la causa real
+>    de «al interactuar el fondo empeora». No lleva caja ni panel de vidrio.
+>
+> Valores aprobados por Carlos en su teléfono:
+> `DENS 33 · GROSOR 0.45 · NITIDEZ 0.7 · POT 4.5 · RELIEVE 0.04 · VEL 0.15 · PISO 0.01`
+>
+> Implementación viva y ajustable: `public/lab-fondo.html`.
+
 **Decidido el 2026-08-05 después de comparar siete direcciones en proporción de teléfono.**
 
 Una superficie de líneas de nivel —como un mapa topográfico de un relieve invisible— que ondula

@@ -10,9 +10,27 @@
 ═══════════════════════════════════════════════════════════════════════════════
   REFERENCIA VISUAL DEL FONDO — ESTO ES LO QUE CARLOS APROBÓ
 
-  Carlos vio siete direcciones y eligió DOS, mezcladas:
+  ⚠️ ACTUALIZADO EL 2026-08-05 POR LA NOCHE. LEE ESTO ANTES QUE NADA:
+
+  El objetivo YA NO ES LA MEZCLA. Carlos vio las tres corriendo y decidió:
+  **TOPOGRÁFICA PURA**. Sus palabras: «me encanta el fondo topográfico, que
+  sean las líneas más finas y más definidas […] el tema de la mezcla es que
+  las líneas se cruzan de lado a lado y eso no me encantó».
+  La SEDA queda descartada: era la que producía esos cruces.
+
+  Los valores que eligió en su teléfono, y que mandan sobre los de más abajo:
+    DENS 33 · GROSOR 0.45 · NITIDEZ 0.7 · POT 4.5 · RELIEVE 0.04
+    VEL 0.15 · PISO 0.01
+
+  Y la inercia de la luz TAMBIÉN cambió — ver la nota de SUAVIZADO más abajo.
+
+  La implementación viva está en `public/lab-fondo.html`, que es WebGL y ya
+  reproduce esto. Este archivo se conserva como registro de cómo se llegó.
+
+  ─────────────────────────────────────────────────────────────────────────
+  Historia: Carlos vio siete direcciones y eligió DOS, mezcladas:
     · TOPOGRÁFICA  (prioritaria: manda el carácter de las líneas)
-    · SEDA ESPECULAR (aporta el ondulado suave y el pliegue)
+    · SEDA ESPECULAR (aporta el ondulado suave) — DESCARTADA la noche del 05
 
   ⚠️  ESTE ARCHIVO ES LA FUENTE DE VERDAD DEL ASPECTO DEL FONDO.
       No es decoración ni un experimento: es la referencia aprobada.
@@ -30,11 +48,24 @@
     · que no haya ningún objeto: ni esfera, ni mancha, ni partículas
 
   QUÉ PIDIÓ CAMBIAR:
-    · LA LUZ DEBE MOVERSE MÁS LENTO. En las primeras pruebas el destello se
-      pasaba de largo al mover rápido y no se alcanzaba a percibir.
-      Aquí ya está corregido: SUAVIZADO = 0.018 (antes 0.06).
-      En la versión WebGL esto es el resorte de lib/inclinacion.ts:
-      OMEGA = 1.4 (NO 2.6). Más bajo = la luz llega después y se ve RECORRER.
+    · [OBSOLETO] «LA LUZ DEBE MOVERSE MÁS LENTO» → SUAVIZADO 0.018, OMEGA 1.4.
+
+      REVERTIDO EL 2026-08-05 POR LA NOCHE, tras probarlo en el teléfono real.
+      Carlos: «quiero que la respuesta sea inmediata […] cuando muevo el
+      teléfono se tarda como un segundo o un segundo y medio en reaccionar».
+      Con OMEGA 1.4 el asentamiento del resorte es de ~3.3 s: era eso.
+
+      VIGENTE:  OMEGA ≈ 14  (asentamiento ≈ 4.6/OMEGA ≈ 0.33 s)
+                SENSIBILIDAD ≈ 12° para el recorrido completo (antes 32°)
+                AUTOCALIBRADO: la primera lectura del sensor es el centro.
+
+      El porqué de la sensibilidad, en sus palabras: «la gente, al agarrar el
+      teléfono, casi no lo mueve; lo mueven apenas para identificar que
+      funciona con el giroscopio».
+
+      El resorte NO se elimina: sin él la señal del sensor tiembla. Solo pasa
+      a ser rápido. Y con OMEGA alto hay que subdividir el paso de integración
+      o el resorte se vuelve rígido y la luz da tirones.
 
   QUÉ LO MUEVE:
     · Las ondas se mueven SOLAS, lento y sin fin.

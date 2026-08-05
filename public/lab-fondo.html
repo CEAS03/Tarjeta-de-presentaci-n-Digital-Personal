@@ -60,25 +60,31 @@
   </div>
 
   <label>Líneas <output id="o-dens"></output>
-    <input type="range" id="dens" min="16" max="64" step="1" value="34"></label>
+    <input type="range" id="dens" min="16" max="64" step="1" value="33"></label>
 
   <label>Grosor <output id="o-grosor"></output>
-    <input type="range" id="grosor" min="0.30" max="2.00" step="0.05" value="0.75"></label>
+    <input type="range" id="grosor" min="0.30" max="2.00" step="0.05" value="0.45"></label>
 
   <label>Nitidez <output id="o-nitidez"></output>
-    <input type="range" id="nitidez" min="0.30" max="1.50" step="0.05" value="0.70"></label>
+    <input type="range" id="nitidez" min="0.30" max="1.50" step="0.05" value="0.7"></label>
 
   <label>Dureza del brillo <output id="o-pot"></output>
-    <input type="range" id="pot" min="3" max="24" step="0.5" value="11"></label>
+    <input type="range" id="pot" min="3" max="24" step="0.5" value="4.5"></label>
 
   <label>Relieve <output id="o-amp"></output>
-    <input type="range" id="amp" min="0.010" max="0.140" step="0.005" value="0.055"></label>
+    <input type="range" id="amp" min="0.010" max="0.140" step="0.005" value="0.04"></label>
 
   <label>Velocidad de las ondas <output id="o-vel"></output>
-    <input type="range" id="vel" min="0" max="2.0" step="0.05" value="1.00"></label>
+    <input type="range" id="vel" min="0" max="2.0" step="0.05" value="0.15"></label>
 
   <label>Base visible <output id="o-piso"></output>
-    <input type="range" id="piso" min="0.00" max="0.20" step="0.005" value="0.035"></label>
+    <input type="range" id="piso" min="0.00" max="0.20" step="0.005" value="0.01"></label>
+
+  <label>Respuesta del giroscopio <output id="o-omega"></output>
+    <input type="range" id="omega" min="1.0" max="24" step="0.5" value="14"></label>
+
+  <label>Sensibilidad (grados) <output id="o-grados"></output>
+    <input type="range" id="grados" min="4" max="40" step="1" value="12"></label>
 
   <label>Calma bajo el texto <output id="o-calma"></output>
     <input type="range" id="calma" min="0.00" max="1.00" step="0.05" value="0.85"></label>
@@ -306,7 +312,7 @@ function medir(){
 medir(); addEventListener('resize', medir);
 
 /* ── Controles ──────────────────────────────────────────────────────────── */
-var mandos = ['dens','grosor','nitidez','pot','amp','vel','piso','calma','velo'];
+var mandos = ['dens','grosor','nitidez','pot','amp','vel','piso','omega','grados','calma','velo'];
 var val = {};
 mandos.forEach(function(id){
   var el = document.getElementById(id), out = document.getElementById('o-' + id);
@@ -329,7 +335,8 @@ document.getElementById('ver-texto').addEventListener('click', function(){
 document.getElementById('copiar').addEventListener('click', function(){
   var texto = 'DENS ' + val.dens + ' · GROSOR ' + val.grosor + ' · NITIDEZ ' + val.nitidez +
               ' · POT ' + val.pot + ' · RELIEVE ' + val.amp + ' · VEL ' + val.vel +
-              ' · PISO ' + val.piso;
+              ' · PISO ' + val.piso + ' · OMEGA ' + val.omega + ' · GRADOS ' + val.grados +
+              ' · CALMA ' + val.calma + ' · VELO ' + val.velo;
   var ok = function(){ document.getElementById('copiar').textContent = '¡Copiado!'; };
   if (navigator.clipboard) navigator.clipboard.writeText(texto).then(ok, function(){ alert(texto); });
   else alert(texto);
@@ -347,21 +354,35 @@ Array.prototype.forEach.call(document.querySelectorAll('.marca'), function(b){
   });
 });
 
-/* ── La luz: giroscopio con inercia larga ───────────────────────────────────
-   OMEGA 1.4, no 2.6. Más bajo = la luz llega DESPUÉS del gesto y se ve
-   RECORRER la pantalla, en vez de pasarse de largo sin que se perciba.
+/* ── La luz: giroscopio ─────────────────────────────────────────────────────
+   CAMBIO DE CRITERIO DE CARLOS (2026-08-05, noche): la inercia larga se
+   descarta. Con OMEGA 1.4 el asentamiento es de ~3.3 s y la luz tardaba «un
+   segundo y medio» en reaccionar. Ahora la respuesta es casi inmediata y la
+   sensibilidad mucho más alta, porque la gente apenas mueve el teléfono: lo
+   inclina un poco, solo para comprobar que responde.
+
+   El resorte se conserva —sin él la señal del sensor tiembla— pero rápido:
+   el asentamiento es ≈ 4.6 / OMEGA, así que OMEGA 14 da unos 0.33 s.
+
+   AUTOCALIBRADO: la primera lectura se toma como el centro. Sin esto el
+   centro sería un beta fijo de 45° y la luz arrancaría descentrada según
+   cómo esté sosteniendo el teléfono cada persona.
    ───────────────────────────────────────────────────────────────────────── */
-var OMEGA = 1.4;
 var destino = {x:0, y:0}, actual = {x:0, y:0}, vel2 = {x:0, y:0};
 var hayGiro = false, hayPuntero = false;
+var centro = null;
 var estadoGiro = document.getElementById('estado-giro');
 
 addEventListener('deviceorientation', function(e){
   if (e.gamma === null || e.beta === null) return;
+  if (!centro) {
+    centro = {gamma: e.gamma, beta: e.beta};
+    estadoGiro.innerHTML = 'Giroscopio: <b>activo</b> — centro calibrado';
+  }
   hayGiro = true;
-  estadoGiro.innerHTML = 'Giroscopio: <b>activo</b>';
-  destino.x = Math.max(-1, Math.min(1, e.gamma / 32));
-  destino.y = Math.max(-1, Math.min(1, (e.beta - 45) / 32));
+  var g = val.grados || 12;
+  destino.x = Math.max(-1, Math.min(1, (e.gamma - centro.gamma) / g));
+  destino.y = Math.max(-1, Math.min(1, (e.beta  - centro.beta)  / g));
 });
 
 addEventListener('pointermove', function(e){
@@ -399,11 +420,18 @@ function frame(now){
     destino.x = Math.cos(s * 0.22) * 0.55;
     destino.y = Math.sin(s * 0.17) * 0.45;
   }
-  ['x','y'].forEach(function(eje){
-    var a = OMEGA * OMEGA * (destino[eje] - actual[eje]) - 2 * OMEGA * vel2[eje];
-    vel2[eje] += a * dt;
-    actual[eje] += vel2[eje] * dt;
-  });
+  var om = val.omega || 14;
+  // Con OMEGA alto el resorte se vuelve rígido: hay que subdividir el paso o
+  // el integrador explota y la luz da tirones.
+  var pasos = Math.max(1, Math.ceil(om * dt * 4));
+  var h = dt / pasos;
+  for (var i = 0; i < pasos; i++) {
+    ['x','y'].forEach(function(eje){
+      var a = om * om * (destino[eje] - actual[eje]) - 2 * om * vel2[eje];
+      vel2[eje] += a * h;
+      actual[eje] += vel2[eje] * h;
+    });
+  }
 
   lerp3(cur.bg, dst.bg, 0.05); lerp3(cur.a1, dst.a1, 0.05); lerp3(cur.a2, dst.a2, 0.05);
 
