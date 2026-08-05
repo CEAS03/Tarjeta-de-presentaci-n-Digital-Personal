@@ -1,0 +1,51 @@
+/* Los tres bloques de identidad. Ningún hex fuera de este archivo (y de paleta.ts,
+   que es su gemelo para el WebGL). Ver SISTEMA-DISENO.md. */
+
+:root {
+  --void: #05070d;
+  --bone: #f2f0eb;
+  --mute: #8a93a6;
+  --line: rgba(242, 240, 235, 0.1);
+
+  --fondo: var(--void);
+  --acento: #c8ceda;
+  --acento-2: #7c8698;
+  --glow: rgba(200, 206, 218, 0.28);
+
+  /* Ambas identidades conviven en el hub sin depender de la marca activa. */
+  --alsai-fondo: #040a16;
+  --alsai-acento: #37e2e4;
+  --alsai-acento-2: #1b8f9b;
+  --blindafon-fondo: #0a0e18;
+  --blindafon-acento: #f18b3b;
+  --blindafon-acento-2: #4fc3ff;
+
+  --e-xs: 0.5rem;
+  --e-sm: 1rem;
+  --e-md: 1.5rem;
+  --e-lg: 2.5rem;
+  --e-xl: 4rem;
+
+  --sal: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-micro: 240ms;
+  --t-medio: 420ms;
+  --t-marca: 900ms;
+
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.32),
+    0 24px 64px rgba(0, 0, 0, 0.28);
+  --realce: inset 0 1px 0 rgba(242, 240, 235, 0.06);
+}
+
+html[data-marca='alsai'] {
+  --fondo: var(--alsai-fondo);
+  --acento: var(--alsai-acento);
+  --acento-2: var(--alsai-acento-2);
+  --glow: rgba(55, 226, 228, 0.32);
+}
+
+html[data-marca='blindafon'] {
+  --fondo: var(--blindafon-fondo);
+  --acento: var(--blindafon-acento);
+  --acento-2: var(--blindafon-acento-2);
+  --glow: rgba(241, 139, 59, 0.3);
+}

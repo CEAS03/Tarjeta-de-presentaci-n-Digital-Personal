@@ -1,0 +1,19 @@
+# robots.txt — tarjeta digital personal de Carlos Álvarez
+# https://carlos.agencia-alsai.com
+
+User-agent: *
+Allow: /
+
+# El aviso declara noindex, follow dentro de su HTML. No se bloquea aquí para
+# que los rastreadores puedan leer esa instrucción.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://carlos.agencia-alsai.com/sitemap.xml

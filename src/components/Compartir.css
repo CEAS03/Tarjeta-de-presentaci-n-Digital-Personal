@@ -1,0 +1,261 @@
+.compartir__disparador {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 0.7rem 1rem;
+  background: color-mix(in srgb, var(--bone) 5%, transparent);
+  box-shadow: var(--realce);
+  color: var(--bone);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    transform var(--t-micro) var(--sal),
+    border-color var(--t-micro) var(--sal),
+    color var(--t-micro) var(--sal);
+}
+
+.compartir__disparador svg,
+.compartir__accion svg,
+.compartir__icono svg,
+.compartir__cerrar svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.compartir__disparador:active,
+.compartir__accion:active {
+  transform: scale(0.97);
+  transition-duration: 120ms;
+}
+
+.compartir__dialogo {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--bone);
+  overflow: hidden;
+}
+
+.compartir__dialogo[open] {
+  display: grid;
+  align-items: end;
+}
+
+.compartir__dialogo::backdrop {
+  background: color-mix(in srgb, var(--void) 80%, transparent);
+  backdrop-filter: blur(0.35rem);
+  -webkit-backdrop-filter: blur(0.35rem);
+}
+
+.compartir__hoja {
+  position: relative;
+  width: min(100%, 36rem);
+  max-height: min(48rem, calc(100svh - env(safe-area-inset-top)));
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 1.5rem 1.5rem 0 0;
+  padding: 2.5rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--fondo) 96%, var(--bone));
+  box-shadow: var(--sombra), var(--realce), 0 0 3rem var(--glow);
+  overflow-y: auto;
+  animation: compartir-entrada var(--t-medio) var(--sal) both;
+}
+
+.compartir__asa {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  width: 2.75rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--line);
+  transform: translateX(-50%);
+}
+
+.compartir__cerrar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  padding: 0;
+  background: color-mix(in srgb, var(--bone) 4%, transparent);
+  color: var(--mute);
+  cursor: pointer;
+}
+
+.compartir__encabezado {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--e-sm);
+  padding-right: 3rem;
+}
+
+.compartir__icono {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--acento) 38%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--acento) 12%, transparent);
+  color: var(--acento);
+  box-shadow: var(--realce), 0 0 1.5rem var(--glow);
+}
+
+.compartir__titulo {
+  font-size: clamp(1.5rem, 7vw, 2.25rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.compartir__descripcion {
+  margin: 0.5rem 0 0;
+  color: color-mix(in srgb, var(--bone) 64%, var(--acento));
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.compartir__qr {
+  width: min(100%, 18.5rem);
+  margin: var(--e-md) auto;
+  text-align: center;
+}
+
+.compartir__qr canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 0.875rem;
+  box-shadow: 0 0.5rem 2rem color-mix(in srgb, var(--void) 35%, transparent);
+  image-rendering: pixelated;
+}
+
+.compartir__qr p {
+  margin: 0.625rem 0 0;
+  color: color-mix(in srgb, var(--bone) 68%, var(--acento));
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.compartir__acciones {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.compartir__accion {
+  min-width: 0;
+  min-height: 3.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 0.7rem 0.75rem;
+  background: color-mix(in srgb, var(--bone) 6%, transparent);
+  box-shadow: var(--realce);
+  color: var(--bone);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    transform var(--t-micro) var(--sal),
+    opacity var(--t-micro) var(--sal);
+}
+
+.compartir__accion--principal {
+  border-color: color-mix(in srgb, var(--acento) 44%, transparent);
+  background: color-mix(in srgb, var(--acento) 19%, var(--fondo));
+  box-shadow: var(--realce), 0 0.5rem 1.75rem color-mix(in srgb, var(--glow) 55%, transparent);
+}
+
+.compartir__url {
+  display: block;
+  max-width: 100%;
+  margin-top: var(--e-sm);
+  overflow: hidden;
+  color: color-mix(in srgb, var(--bone) 68%, var(--acento));
+  font-size: 0.75rem;
+  line-height: 1.4;
+  text-align: center;
+  text-decoration-color: color-mix(in srgb, var(--acento) 38%, transparent);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compartir__estado {
+  min-height: 1.25rem;
+  margin: 0.5rem 0 0;
+  color: var(--acento);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+@keyframes compartir-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-height: 720px) {
+  .compartir__hoja {
+    padding-top: 2.25rem;
+  }
+
+  .compartir__qr {
+    width: min(100%, 13rem);
+    margin-block: var(--e-sm);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .compartir__disparador:hover {
+    border-color: color-mix(in srgb, var(--acento) 42%, transparent);
+    color: var(--acento);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compartir__hoja {
+    animation-duration: 150ms;
+  }
+}

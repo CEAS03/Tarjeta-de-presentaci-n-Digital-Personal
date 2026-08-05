@@ -1,0 +1,208 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--bone);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; /* impeccable-disable-line overused-font -- tipografía compartida por las dos marcas */
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  transition: background var(--t-marca) var(--sal);
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif; /* impeccable-disable-line overused-font -- display oficial de ALSAI y Blindafón */
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0;
+}
+
+/* El fondo. Debajo queda un degradado CSS para que la primera pantalla nunca
+   esté en blanco mientras carga el WebGL. */
+.relieve {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.telon {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(120% 80% at 50% 35%, color-mix(in srgb, var(--acento) 10%, transparent), transparent 70%),
+    var(--fondo);
+  transition: background var(--t-marca) var(--sal);
+}
+
+.aplicacion {
+  position: relative;
+  z-index: 2;
+  min-height: 100%;
+}
+
+/* La pantalla anterior queda congelada debajo de la revelación circular. El
+   retrato viaja en una capa aparte para no quedar recortado por clip-path. */
+.transicion {
+  display: contents;
+  pointer-events: none;
+}
+
+.transicion__anterior {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.transicion__anterior > .aplicacion {
+  min-height: 100%;
+}
+
+.transicion__retrato {
+  position: fixed;
+  z-index: 33;
+  display: none;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 34%;
+  box-shadow: var(--realce), 0 0 2rem var(--glow);
+  pointer-events: none;
+  transform-origin: left top;
+  will-change: transform, opacity;
+}
+
+.escena {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--e-lg);
+  padding: var(--e-xl) 1.25rem max(var(--e-lg), env(safe-area-inset-bottom));
+  max-width: 34rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.nombre {
+  font-size: clamp(2.75rem, 12vw, 4rem);
+  letter-spacing: -0.035em;
+}
+
+.ciudad {
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  margin: var(--e-xs) 0 0;
+}
+
+.tesis {
+  font-size: clamp(1.0625rem, 4.2vw, 1.25rem);
+  color: var(--bone);
+  opacity: 0.82;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.opciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-sm);
+}
+
+.opcion {
+  appearance: none;
+  min-height: 88px;
+  padding: var(--e-sm) var(--e-md);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bone) 4%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--sombra), var(--realce);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  transition:
+    transform var(--t-micro) var(--sal),
+    border-color var(--t-micro) var(--sal),
+    box-shadow var(--t-micro) var(--sal);
+}
+
+.opcion:hover {
+  border-color: color-mix(in srgb, var(--acento) 45%, transparent);
+  box-shadow: var(--sombra), var(--realce), 0 0 32px var(--glow);
+}
+
+.opcion:active {
+  transform: scale(0.97);
+  transition-duration: 120ms;
+}
+
+.opcion b {
+  font-family: 'Space Grotesk', sans-serif; /* impeccable-disable-line overused-font -- display oficial de ALSAI y Blindafón */
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+
+.opcion span {
+  font-size: 0.875rem;
+  color: var(--mute);
+  line-height: 1.4;
+}
+
+.volver {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--mute);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: var(--e-xs);
+}
+
+.volver:hover {
+  color: var(--acento);
+}
+
+:focus-visible {
+  outline: 2px solid var(--acento);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 150ms !important;
+  }
+}

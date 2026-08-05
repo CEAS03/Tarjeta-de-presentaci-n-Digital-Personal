@@ -1,0 +1,75 @@
+import type { ReactNode } from 'react';
+import { tarjeta, type ClaveMarca } from '../config/tarjeta';
+import BotonMarca, { type AlSeleccionarMarca } from './BotonMarca';
+import TarjetaFisica from './TarjetaFisica';
+import './Hub.css';
+
+type PropiedadesHub = {
+  onSeleccionarMarca: AlSeleccionarMarca;
+  onGuardarContacto: () => void;
+  accionCompartir?: ReactNode;
+};
+
+const ordenMarcas: ClaveMarca[] = ['alsai', 'blindafon'];
+
+/** Presentación personal y bifurcación hacia los dos negocios. */
+export function Hub({
+  onSeleccionarMarca,
+  onGuardarContacto,
+  accionCompartir,
+}: PropiedadesHub) {
+  const { persona, marcas } = tarjeta;
+
+  return (
+    <section className="hub" aria-labelledby="hub-nombre">
+      <div className="hub__contenido">
+        <div className="hub__presentacion">
+          <TarjetaFisica fotoSrc={persona.fotoSrc} nombre={persona.nombre} />
+
+          <header className="hub__identidad">
+            <h1 className="hub__nombre" id="hub-nombre">
+              {persona.nombre}
+            </h1>
+            <p className="hub__ciudad">{persona.ciudad}</p>
+          </header>
+
+          <p className="hub__descripcion">{persona.descripcion}</p>
+        </div>
+
+        <section className="hub__eleccion" aria-labelledby="hub-pregunta">
+          <h2 className="hub__pregunta" id="hub-pregunta">
+            {persona.pregunta}
+          </h2>
+
+          <nav className="hub__opciones" aria-labelledby="hub-pregunta">
+            {ordenMarcas.map((clave) => {
+              const marca = marcas[clave];
+
+              return (
+                <BotonMarca
+                  key={clave}
+                  marca={clave}
+                  nombre={marca.nombre}
+                  descripcion={marca.resumen}
+                  onSeleccionar={onSeleccionarMarca}
+                />
+              );
+            })}
+          </nav>
+
+          <div className="hub__acciones-secundarias">
+            <button className="hub__accion" type="button" onClick={onGuardarContacto}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 14v5h14v-5" />
+              </svg>
+              <span>{tarjeta.acciones.guardarPersonal}</span>
+            </button>
+            {accionCompartir}
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+export default Hub;
