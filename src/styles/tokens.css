@@ -34,8 +34,12 @@
      es parte de la bifurcación: Space Grotesk es la display de las dos
      empresas, así que usarla también en el hub borraría la distinción y la
      entrada parecería ya de ALSAI. Ver DIRECCION-DE-ARTE.md §5. */
-  --display-hub: 'Instrument Serif', 'Space Grotesk', Georgia, serif;
-  --display-hub-peso: 400;
+  /* SYNE, elegida por Carlos el 2026-08-05 entre Newsreader, Bricolage Grotesque
+     y ella. Antes estuvo Instrument Serif, que rechazó.
+     Peso 700: Syne es de formas anchas y a peso ligero pierde el carácter que la
+     hace distinta de Space Grotesk, que es justo la razón de que esté aquí. */
+  --display-hub: 'Syne', ui-sans-serif, system-ui, sans-serif;
+  --display-hub-peso: 700;
   --display-marca: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --cuerpo: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
@@ -65,6 +69,26 @@
     0 0 3px rgb(0 0 0 / 95%),
     0 1px 6px rgb(0 0 0 / 85%),
     0 0 18px rgb(0 0 0 / 65%);
+
+  /* ── La luz, en CSS ────────────────────────────────────────────────────
+     Las escribe el bucle del relieve (`src/lib/luzCss.ts`) con el MISMO valor
+     que recibe el shader. No son un efecto que imita al fondo: son el fondo.
+     Es lo que hace que la luz atraviese la pieza entera —relieve, retrato,
+     botones— en vez de que cada elemento brille por su cuenta.
+
+     Estos valores son el reposo: si el WebGL no llega a montarse, o con
+     `prefers-reduced-motion`, todo lo que los consume queda centrado y quieto.
+     Nunca se avisa de que faltó nada. */
+  --luz-x: 0;
+  --luz-y: 0;
+  --luz-px: 50%;
+  --luz-py: 50%;
+
+  /* Cuánto se deja notar la luz sobre un elemento tocable. Es deliberadamente
+     bajo: la presencia la dan el borde y la tipografía, y esto es el roce que
+     delata que la superficie está viva. Subirlo convierte los botones en
+     objetos brillantes, que es lo contrario de lo que se busca. */
+  --luz-roce: 0.5;
 
   --sal: cubic-bezier(0.16, 1, 0.3, 1);
   --t-micro: 240ms;

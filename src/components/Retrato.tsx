@@ -27,6 +27,10 @@ export function Retrato({ src, nombre }: PropiedadesRetrato) {
         {...{ fetchpriority: 'high' }}
         decoding="async"
       />
+      {/* El roce de la MISMA luz que barre el relieve. Es un brillo que cruza la
+          superficie de la foto, NO un aro: un anillo alrededor del círculo sería
+          exactamente el aro blanco que Carlos rechazó del primer intento. */}
+      <span className="retrato__luz" aria-hidden="true" />
     </div>
   );
 }
