@@ -112,8 +112,17 @@ Valores aprobados por Carlos el 2026-08-05 probando en su teléfono. **No se toc
 | `PISO` | **0.01** | intensidad de la línea donde no hay brillo |
 | `OMEGA` | **14** | rigidez del resorte. Asentamiento ≈ 4.6/ω ≈ 0.33 s |
 | `GRADOS` | **12°** | inclinación para el recorrido completo de la luz |
-| `CALMA` | **0.85** | cuánto se aplana el relieve bajo el texto |
+| ~~`CALMA`~~ | **ELIMINADA** | ver abajo |
 | `VELO` | **0** | descartado: la sombra por letra ya basta |
+
+**`CALMA` y la viñeta se eliminaron el 2026-08-05** por la REVISIÓN 2. Valían 0.85 y
+`smoothstep(1.05, 0.30, …)`, y juntas dibujaban el óvalo que Carlos rechazó. El resto de la tabla
+sigue intacto y sigue sin tocarse. La legibilidad la resuelve solo `--halo`.
+
+**Había un tercer óvalo, y no estaba documentado:** un `::before` en `.rama__contenido`
+(`border-radius: 42%` + degradado radial de `--fondo` al 98 %, desenfocado) que pintaba una elipse
+casi opaca sobre el relieve para que el texto se leyera. Era el más visible de los tres y el que
+más claramente rompía la regla dura. También eliminado.
 
 **Geometría.** Líneas horizontales apiladas, desplazadas por un campo de altura de dos senos
 cruzados. **No** isolíneas de ruido fbm: eso da manchas irregulares y es exactamente lo que se
@@ -132,7 +141,11 @@ en escritorio manda el puntero. **Nunca se avisa de que faltó el permiso.**
 
 ## 3. La composición del hub
 
-Una sola pantalla, sin scroll obligatorio para lo esencial. De arriba abajo:
+**SIN SCROLL EN ABSOLUTO** (REVISIÓN 2), no «sin scroll para lo esencial»: `.hub` va a
+`height: 100svh; overflow: hidden`. El croquis de abajo describe el retrato a sangre y **está
+obsoleto** — ver §4. Lo que sigue vigente es el orden de los bloques y la alineación izquierda.
+
+De arriba abajo:
 
 ```
 ┌─────────────────────────────┐
@@ -166,25 +179,35 @@ Margen lateral: `1.25rem`. El bloque de texto no pasa de `22rem` de ancho.
 
 ---
 
-## 4. El retrato — sin recuadro
+## 4. El retrato — círculo limpio, sin aro
 
-**Regla dura: la foto no vive dentro de nada.** Ni tarjeta 3D, ni círculo, ni marco, ni aro
-blanco. Fue el rechazo más explícito de Carlos.
+**REESCRITO el 2026-08-05 por la REVISIÓN 2.** Lo que decía esta sección —foto a sangre, sin
+círculo— quedó obsoleto: Carlos pidió expresamente un círculo mediano porque a sangre él era «todo
+el protagonista de la página». Se conserva abajo lo que sigue vigente.
 
-Tratamiento:
+**Regla dura, la que NO cambia: ni aro ni marco.** Lo que Carlos rechazó del primer intento no fue
+la forma redonda, fue el **aro blanco brillante** y la tarjeta 3D que lo contenía. Círculo sí;
+`border`, `outline`, `box-shadow` de contorno o marco, jamás.
 
-- Ocupa el **ancho completo**, sangrando por los dos lados y por arriba.
-- Alto: **52 %** de la altura de la pantalla (`52svh`, no `vh` — en móvil la barra del navegador
-  cambia `vh` y la foto daría saltos al hacer scroll).
-- `object-fit: cover`, `object-position: center 28 %` — la cara queda en el tercio alto.
-- **Se funde con el fondo por abajo** con una máscara: `mask-image: linear-gradient(to bottom,
-  #000 0%, #000 46%, transparent 96%)`. No hay borde inferior: la foto se disuelve en el relieve.
-- Desaturada al **88 %** y con el brillo al **92 %**, para que conviva con una paleta fría sin
-  parecer una foto pegada encima.
-- Una sombra interior de color `--fondo` en la parte baja refuerza la fusión.
+Tratamiento (valores reales en `Hub.css`):
 
-En la rama, el retrato **no aparece**: ahí manda el logo de la marca. La transición lo encoge y
-lo retira. Nunca se convierte en un avatar circular de esquina.
+- Círculo de lado `min(clamp(7.5rem, 34vw, 12rem), 26svh)` — 133 px a 390×844.
+- Alineado al margen lateral, como todo lo demás. No centrado.
+- `transform: scale(1.3)` sobre la imagen: `carlos.webp` es cuadrada y el círculo también, así que
+  `object-fit: cover` **no recorta nada** y se veía un cerco ancho de fondo de estudio.
+- Máscara `radial-gradient(circle closest-side …, #000 0 78%, transparent 100%)`. **`closest-side`
+  es obligatorio**: sin él el gradiente usa `farthest-corner`, la caída cae fuera de la caja y la
+  foto sale cuadrada. Pasó.
+- `filter: saturate(0.68) contrast(1.06) brightness(0.78)` y el tinte de `--fondo` en `color`.
+- `.retrato::before` hunde el **anillo exterior** hacia el color de la página: dentro del círculo
+  todo el perímetro es fondo de estudio claro, y sin esto la foto se lee como una moneda pegada.
+  Es tratamiento fotográfico dentro de la foto, no una forma sobre la pieza.
+
+En la rama el retrato **no aparece**: ahí manda el logo. Nunca se convierte en un avatar circular
+de esquina.
+
+**PENDIENTE:** `Transicion.tsx` todavía lo convierte en una insignia circular de esquina. Sin
+revisar. Es la fase 1 de `PLAN-ACTIVO.md`.
 
 ---
 
@@ -197,13 +220,27 @@ en el hub borra la distinción: la entrada parecería ya de ALSAI. **El hub llev
 y al entrar en una marca la tipografía cambia a Space Grotesk.** Ese cambio *es* parte de la
 bifurcación.
 
-Tres candidatas, todas self-hosted con `@fontsource`, sin CDN:
+### CERRADA: **Syne**, elegida por Carlos el 2026-08-05
 
-| Candidata | Carácter | Por qué aquí |
+`--display-hub: 'Syne'` con `--display-hub-peso: 700`, self-hosted con `@fontsource`, pesos 400,
+600 y 700. Se importan **tres pesos** porque la display del hub se usa en tres jerarquías: el
+nombre (700), los nombres de marca de las filas (600) y la pregunta (400). Antes solo se importaba
+un peso y el navegador falsificaba la negrita de las filas; con una display de formas anchas como
+Syne esa falsificación se nota.
+
+**Consecuencia de composición:** «Carlos Álvarez» pasa a **dos líneas** a 390×844. Cabe sin scroll
+y se lee deliberado, pero es un cambio real respecto a la maqueta de una sola línea.
+
+Historial de la decisión, que explica por qué no volver atrás:
+
+| Candidata | Carácter | Resultado |
 |---|---|---|
-| **Instrument Serif** | serif display, contraste alto, muy fina | Humaniza. Contra dos marcas tecnológicas, una serif dice «persona», no «producto». Es mi recomendación |
-| **Bricolage Grotesque** | grotesca con quiebres deliberados | Moderna y con carácter, sin irse a lo editorial. La apuesta intermedia |
-| **Fraunces** | serif variable, cálida y expresiva | La más personal de las tres. Riesgo: puede tirar a boutique |
+| **Syne** | grotesca contemporánea, formas anchas | **ELEGIDA** por Carlos |
+| Instrument Serif | serif display, contraste alto, muy fina | **Rechazada** por Carlos |
+| Newsreader | serif de contraste bajo, cálida | Propuesta, no elegida |
+| Bricolage Grotesque | grotesca con quiebres deliberados | Propuesta, no elegida |
+| Fraunces | serif variable, expresiva | **Excluida** por Carlos. Desinstalada |
+| Inter, Roboto, Geist, Plus Jakarta Sans | — | **Excluidas** por Carlos |
 
 **Cuerpo: Inter** en los tres estados. No cambia nunca; es lo que sostiene la continuidad.
 
@@ -274,6 +311,28 @@ un punto medio, en `0.875rem` y color `--mute`. No compiten con las dos filas.
 Se hereda `SISTEMA-DISENO.md` sin cambios: easing `cubic-bezier(0.16, 1, 0.3, 1)`, micro 240 ms,
 medio 420 ms, bifurcación 900 ms. Solo `transform` y `opacity`.
 
+### La luz, en CSS — añadido el 2026-08-05
+
+`src/lib/luzCss.ts` publica la dirección de la luz en `--luz-x`, `--luz-y`, `--luz-px` y `--luz-py`
+sobre `<html>`. Las consumen el retrato y todos los filetes de las filas tocables.
+
+**No es un efecto que imita al fondo: es el fondo.** El publicador se alimenta del valor que el
+bucle del relieve ya calculó, en el mismo frame. Es lo que hace que la luz se sienta atravesar la
+pieza entera en vez de que cada elemento brille por su cuenta.
+
+**Regla dura para quien lo toque:** no crear un `requestAnimationFrame` propio que llame a
+`obtenerInclinacion().leer(dt)`. `leer()` **integra** el resorte; llamarlo dos veces por frame lo
+integra dos veces y cambia la dinámica del fondo, que son los valores que Carlos cerró probando en
+su teléfono.
+
+**El filete vivo** es el recurso con el que se resolvió «botones más llamativos» sin reabrir la
+caja: la línea de 1 px que separa las filas es un `::after` con un degradado cuyo punto brillante
+vive en `--luz-px`. La presencia viene de que la línea esté viva. Ningún elemento tocable tiene
+fondo propio, y eso no cambia.
+
+**En el retrato, la luz es un brillo que CRUZA la superficie de la foto, nunca un anillo alrededor
+del círculo.** Un aro ahí sería literalmente lo que Carlos rechazó del primer intento.
+
 Entrada del hub, escalonada 60 ms, máximo cinco pasos:
 
 1. El relieve ya está (entra con un fundido de 600 ms al montarse el WebGL).
@@ -310,8 +369,11 @@ producción. Lo que sí se controla es lo de antes y lo de después.
 Cambia la identidad, no la estructura. Lo que se mantiene: fondo a sangre, alineación izquierda,
 halo del texto, ausencia de cajas.
 
-- El retrato desaparece; arriba va el **logo de la marca**, alto máximo 34 px, alineado a la
-  izquierda, nunca centrado ni ampliado hasta ocupar el ancho.
+- El retrato desaparece; arriba va el **logo de la marca**. ~~alineado a la izquierda, nunca
+  centrado~~ → **CENTRADO desde la REVISIÓN 2**, que manda sobre esta sección. Se centra el bloque
+  de identidad entero (logo + línea de rol); de la descripción hacia abajo todo sigue a la
+  izquierda. El «alto máximo 34 px» tampoco se cumplió nunca: el alto real es
+  `clamp(4.25rem, 11svh, 6.75rem)`, y así aprobado en captura.
 - La display pasa a **Space Grotesk**. Es el momento en que la tarjeta deja de ser de Carlos y
   pasa a ser de la marca.
 - El acento tiñe el fondo, el punto de la marca, el filete activo y el `theme-color` del

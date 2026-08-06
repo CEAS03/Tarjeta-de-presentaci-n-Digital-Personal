@@ -2,6 +2,112 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-05 — Syne elegida, y el proyecto respaldado en GitHub
+
+- **Resultado:** la tipografía del hub queda **cerrada en Syne**, elegida por Carlos entre las tres
+  candidatas propuestas. El proyecto pasa a tener repositorio remoto.
+- **Qué se hizo:**
+  - **Syne aplicada.** `--display-hub: 'Syne'` con peso 700 en `tokens.css`, y en `main.tsx` se
+    importan **tres pesos** (400, 600, 700). Antes solo se importaba uno y el navegador
+    falsificaba la negrita de los nombres de marca de las filas; con una display de formas anchas
+    eso se nota. Es un fallo que venía de antes y que se arregla ahora.
+  - **Efecto secundario aceptado:** «Carlos Álvarez» pasa a **dos líneas** a 390×844. Cabe sin
+    scroll y se lee deliberado, pero cambia la composición respecto a la maqueta original.
+  - **`scripts/capturas/` añadido a `.gitignore`.** Son 51 MB de PNG a dpr 3, regenerables con
+    `node scripts/mirar.mjs`. Meterlos en el historial lo infla para siempre. Mismo criterio que
+    ya se aplicaba a `capturas-qa/`. También se dejó de rastrear `tsconfig.tsbuildinfo`.
+  - **Remoto `origin`** apuntando a `CEAS03/Tarjeta-de-presentaci-n-Digital-Personal`.
+- **Verificación real:**
+  - `npm run build` → código 0.
+  - `node scripts/aceptacion.mjs https://localhost:5193` → **14/14 en verde** con Syne aplicada.
+  - Medido en los tres viewports con Syne: **0 px de desbordamiento** en 390×844, 375×667 y
+    430×932, y el nombre no desborda en horizontal.
+- **Pendiente:** la aprobación de Carlos en su teléfono, la variante del logo de Blindafón, y las
+  hojas inferiores. Ver `PLAN-ACTIVO.md`.
+
+## 2026-08-05 — REVISIÓN 2, tanda 2: botones, movimiento, tipografía y la transición rota
+
+- **Resultado:** las **nueve tareas** de la REVISIÓN 2 están hechas y verificadas en headless.
+  **Carlos todavía no lo ha visto en su teléfono. Sin eso no está aprobado.**
+- **Qué se hizo:**
+  - **Botones con presencia y sin cajas.** El recurso nuevo es el **filete vivo**: la línea de 1 px
+    que ya separaba las filas pasa a ser un `::after` que la luz del giroscopio recorre. La
+    presencia sale de que la línea esté viva, no de un rectángulo debajo del texto — que es
+    exactamente lo que Carlos rechazó y no se reabre. Agendar más alto y con los dos filetes en el
+    acento de la marca; redes de 1.25 a 1.5 rem y del 62 al 82 % de blanco; dock con filete vivo y
+    entrada propia.
+  - **La luz atraviesa la pieza entera.** `src/lib/luzCss.ts` publica la dirección de la luz en
+    variables CSS. Se alimenta del valor que el bucle del relieve **ya calculó**, no de un bucle
+    propio: `leer()` integra el resorte, y llamarlo dos veces por frame habría alterado la
+    dinámica que Carlos cerró en su teléfono. El retrato lleva un brillo que cruza su superficie,
+    **no un aro**.
+  - **Tres candidatas tipográficas nuevas** —Newsreader, Bricolage Grotesque y Syne— en
+    `lab-tipografia.html`. Fraunces desinstalada. **La fuente no se ha cambiado**: sigue Instrument
+    Serif hasta que Carlos elija.
+  - **`Transicion.tsx` reescrito**, y ahí apareció lo importante de esta tanda.
+- **DOS FALLOS REALES, encontrados al revisar la transición:**
+  1. **La transición de entrada no ocurría.** El retrato viajaba hasta convertirse en la insignia
+     circular de esquina, y el destino de ese viaje era `.rama__retrato`, un elemento que
+     `Rama.tsx` ya no renderiza. Al ir de hub a rama, la transición lo buscaba 750 ms, se rendía y
+     **salía sin ejecutarse**: ni revelación circular ni interpolación de paleta, y un salto seco
+     tras tres cuartos de segundo congelado. De rama a hub sí funcionaba, y por eso llevaba tiempo
+     pasando desapercibido. Es decir: el momento que Carlos quería que la gente recordara no
+     existía en el sentido en que la gente entra.
+  2. **Al arreglar el primero salió el segundo, que estaba tapado:** las dos pantallas se veían
+     superpuestas como una doble exposición, porque la copia congelada es opaca y la aplicación
+     nueva es transparente. Resuelto recortando la copia con el negativo del círculo, y no
+     pintándole un fondo sólido a la pantalla nueva, que habría tapado el relieve durante los
+     900 ms de la bifurcación.
+- **Verificación real:**
+  - `npm run build` → código 0.
+  - `node scripts/aceptacion.mjs https://localhost:5193` → **14/14 en verde**.
+  - Transición instrumentada: **80 fotogramas** de `clip-path` circular creciendo de 0 a 668 px en
+    ~900 ms, el primero a 54 ms del toque. Fotogramas en `scripts/capturas/transicion/`.
+  - `--luz-x` medida en las dos posiciones extremas del puntero: −0.792 y +0.792.
+  - Capturas en `scripts/capturas/tanda2/` y `scripts/capturas/tipografia/`.
+- **Pendiente:** la aprobación de Carlos, tres decisiones suyas (logo, tipografía, aire del hub) y
+  las hojas inferiores `HojaAgendar.tsx` / `Compartir.tsx`, que siguen con la estética antigua y
+  no entraban en las nueve tareas. Todo detallado en `PLAN-ACTIVO.md`.
+- **Plan archivado en:** todavía no; `PLAN-ACTIVO.md` sigue abierto.
+
+## 2026-08-05 (madrugada) — REVISIÓN 2, tanda 1: hub sin scroll, retrato circular, fuera el óvalo
+
+- **Resultado:** parcial y verificado en headless. Hechas las tareas **1 a 5** de la REVISIÓN 2.
+  Pendientes la 6 a la 9 (botones, movimiento, tipografía y `Transicion.tsx`).
+  **Carlos todavía no lo ha visto en su teléfono. Sin eso no está aprobado.**
+- **Qué se hizo:**
+  - **Hub sin scroll.** `.hub` a `height: 100svh; overflow: hidden` y todas las escalas y espacios
+    a `clamp` contra `svh`. Se midió antes y después: el hub sobraba 59 px a 390×844 y **165 px a
+    375×667**; las ramas también desbordaban a 375×667, cosa que ningún documento registraba.
+    Ahora **0 px en los tres viewports**. No se recortó ni se resumió nada del texto de Carlos.
+  - **Retrato circular mediano**, 133 px a 390×844, sin aro ni marco. Se conserva el tratamiento
+    de brillo y tinte, reequilibrado: el hundido del perímetro pasa a integrar la foto y el filtro
+    deja de castigar la cara (0.52 → 0.78 de brillo).
+  - **Los óvalos eran TRES, no dos.** Además de la viñeta y la calma del shader había un
+    `::before` con `border-radius: 42%` en `.rama__contenido` —una elipse casi opaca del color de
+    fondo, pintada sobre el relieve para dar legibilidad— que no estaba documentado en ninguna
+    parte y era el más visible de los tres. Eliminados los tres. La legibilidad la sostiene solo
+    `--halo`, y aguanta.
+  - **Logo de Blindafón a color.** El activo nuevo de Carlos ya estaba en `public/`. A color tal
+    cual el azul marino se pierde, así que va realzado (opción B) y quedan cuatro variantes
+    capturadas para que elija.
+  - **Ramas redistribuidas.** El hueco entre las redes y el dock baja de ~190 px a 20–55 px.
+- **Verificación real:**
+  - `npm run build` → código 0.
+  - `node scripts/aceptacion.mjs https://localhost:5193` → **14/14 en verde**.
+  - Capturas en `scripts/capturas/estado-actual/` (antes), `scripts/capturas/tanda1/` (después) y
+    `scripts/capturas/logo-blindafon/` (las cuatro variantes del logo).
+- **Correcciones de documentación hechas sobre la marcha:**
+  - `AGENTS.md` no listaba `npm run dev:https`, `aceptacion.mjs` ni `mirar.mjs`, y presentaba el
+    `qa-tarjeta.mjs` del primer intento como el QA vigente.
+  - `PLAN-ACTIVO.md` decía que el logo de Blindafón «no es resoluble desde CSS» y que faltaba un
+    activo. Ya estaba entregado.
+  - `DIRECCION-DE-ARTE.md`: §2 seguía dando `CALMA 0.85` por vigente; §3 decía «sin scroll para lo
+    esencial»; §4 entero describía un retrato a sangre ya sustituido; §9 decía que el logo va a la
+    izquierda y con alto máximo de 34 px, y ninguna de las dos cosas es cierta.
+- **Pendiente:** tanda 2 (tareas 6 a 9) y las dos preguntas para Carlos, en `PLAN-ACTIVO.md`.
+- **Plan archivado en:** todavía no; `PLAN-ACTIVO.md` sigue abierto.
+
 ## 2026-08-05 (noche) — Capa visual rehecha desde cero
 
 - **Resultado:** el fondo está cerrado y aprobado por Carlos en su teléfono. La capa visual del
