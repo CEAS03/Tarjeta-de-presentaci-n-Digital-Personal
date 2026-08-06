@@ -75,8 +75,7 @@ h3 {
   min-height: 100%;
 }
 
-/* La pantalla anterior queda congelada debajo de la revelación circular. El
-   retrato viaja en una capa aparte para no quedar recortado por clip-path. */
+/* La pantalla anterior queda congelada debajo de la revelación circular. */
 .transicion {
   display: contents;
   pointer-events: none;
@@ -95,20 +94,9 @@ h3 {
   min-height: 100%;
 }
 
-.transicion__retrato {
-  position: fixed;
-  z-index: 33;
-  display: none;
-  margin: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 34%;
-  box-shadow: var(--realce), 0 0 2rem var(--glow);
-  pointer-events: none;
-  transform-origin: left top;
-  will-change: transform, opacity;
-}
+/* AQUÍ ESTABA `.transicion__retrato` — el retrato que viajaba entre pantallas,
+   con su `border` y su `box-shadow` de aro. Eliminado el 2026-08-05 junto con el
+   mecanismo entero. Ver el encabezado de Transicion.tsx. */
 
 .escena {
   min-height: 100svh;

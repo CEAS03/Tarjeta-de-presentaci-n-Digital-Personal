@@ -39,7 +39,9 @@ export default function App() {
         <Relieve marca={marca} />
       </Suspense>
 
-      <Transicion ref={transicion} fotoSrc={tarjeta.persona.fotoSrc} />
+      {/* Ya no lleva `fotoSrc`: el retrato dejó de viajar entre pantallas.
+          Ver el encabezado de Transicion.tsx. */}
+      <Transicion ref={transicion} />
 
       {/* Solo se monta en iOS, que es donde hay un permiso que pedir. */}
       <InvitacionGiroscopio />
