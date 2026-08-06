@@ -2,6 +2,74 @@
 
 **Escrito por Claude Code · 2026-08-05 (noche) · valores cerrados con Carlos en su teléfono**
 
+---
+
+## REVISIÓN 2 — 2026-08-05, tras ver la tarjeta implementada
+
+Carlos revisó la capa visual construida y pidió los cambios de abajo. **Mandan sobre el resto de
+este documento.** Donde haya conflicto, gana esta sección.
+
+### Hub
+
+| Antes | Ahora |
+|---|---|
+| Retrato a sangre, 46 svh, fundido radial | **Retrato CIRCULAR y mediano.** «No me gusta que yo sea todo el protagonista de la página» |
+| Página con scroll | **SIN SCROLL. Ni hacia abajo ni hacia arriba.** Todo cabe en una pantalla |
+| Instrument Serif | **Rechazada.** Falta elegir otra |
+
+**Ojo con el círculo:** lo que Carlos rechazó del primer intento no fue la forma redonda, fue el
+**aro blanco brillante** y la tarjeta 3D que lo contenía. Un círculo limpio, sin anillo luminoso
+ni marco, sí es lo que pide. No se reintroduce el aro.
+
+**Por qué sin scroll:** «el fondo se mueve y se ve raro». El relieve es `position: fixed` y el
+contenido se desplaza por encima, lo que rompe la ilusión de superficie única. Sin scroll el
+problema desaparece de raíz.
+
+**Consecuencia que hay que resolver:** a 390×844, con retrato circular + nombre + ciudad + tesis +
+pregunta + dos filas + acciones, el contenido no entra holgado. Hay que **reducir escalas y
+espacios**, no recortar contenido por cuenta propia. Si aun así no cabe, se le pregunta a Carlos
+qué prefiere acortar. **Nunca inventar ni resumir su descripción sin permiso.**
+
+### Ramas — ALSAI y Blindafón
+
+- **Fuera el óvalo.** «Le pusiste como un óvalo en toda la pantalla, ese óvalo se ve súper feo».
+  Es la **viñeta radial del shader** (`vig`, en `relieve.glsl.ts`) sumada a la **calma**
+  (`smoothstep(0.40, 0.72, v)`), que juntas dibujan una mancha ovalada oscura sobre el relieve.
+  Se elimina o se sustituye por una atenuación que no tenga forma reconocible.
+- **La legibilidad la resuelve SOLO el texto.** «Si quiero que el texto tenga un poco de sombra o
+  de aura, el chiste es que el texto se vea mucho más que el fondo». Es decir: `--halo` sí,
+  atenuaciones del fondo con forma, no. Ya se comprobó que el halo aguanta solo.
+- **Sin espacios vacíos.** Redistribuir todo: hoy hay un hueco grande entre «Agendar» y las redes.
+- **El logo, centrado**, y el texto de debajo más separado.
+- **Botón de agendar más llamativo.**
+- **Redes sociales más grandes, más visibles y más profesionales.**
+- **Dock inferior (guardar, WhatsApp, compartir) más profesional, con animación.**
+- **Logo de Blindafón: activo nuevo**, entregado por Carlos el 2026-08-05. Sustituye a
+  `public/blindafon.webp`. Es un cohete-teléfono azul marino con llama naranja. Al llevar naranja
+  luminoso ya no hace falta forzarlo a blanco: **quitar el `filter: brightness(0) invert(1)`** y
+  comprobar cómo se ve a color sobre el fondo oscuro.
+
+### Movimiento
+
+«Todo quiero que tenga efectos y animaciones y transiciones.»
+
+**Con criterio, no por acumulación.** El propio Carlos fijó antes esta regla y sigue vigente:
+*«prefiero una tarjeta sobria que se vea cara a una llena de efectos a medio hacer»*. Se aplica así:
+
+- Toda acción tocable responde: `:active`, y transición de entrada y de salida.
+- Cada animación tiene una causa. Nada se mueve solo por moverse.
+- Se mantienen los tiempos del sistema: micro 240 ms, medio 420 ms, marca 900 ms, easing
+  `cubic-bezier(0.16, 1, 0.3, 1)`. Solo `transform` y `opacity`.
+- **Un elemento animado a medias es peor que uno quieto.** Si no da tiempo a rematarlo, se deja
+  estático.
+
+### Lo que sigue prohibido
+
+Nada de esta revisión reabre las cajas. Los botones se hacen «más llamativos y profesionales»
+**sin** volver a ser rectángulos de color con esquinas de 8 px: eso fue exactamente lo que Carlos
+rechazó del primer intento. La presencia se consigue con luz, borde translúcido, contraste
+tipográfico y movimiento — no con un fondo sólido.
+
 `DISENO.md` decide **qué** se construye y por qué. Este documento decide **cómo se ve**:
 composición, escala real, tratamiento del retrato, ritmo y movimiento. Faltaba, y esa falta es la
 causa del primer intento fallido: sin él, cada componente se improvisó por separado.
