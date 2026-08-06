@@ -15,8 +15,8 @@
   width: 100%;
   min-height: 100svh;
   overflow: hidden;
-  padding: max(var(--e-md), env(safe-area-inset-top)) 1.25rem
-    calc(7.75rem + env(safe-area-inset-bottom));
+  padding: max(clamp(var(--e-sm), 2svh, var(--e-md)), env(safe-area-inset-top)) 1.25rem
+    calc(clamp(6.5rem, 15svh, 7.75rem) + env(safe-area-inset-bottom));
 }
 
 .rama:focus {
@@ -29,45 +29,52 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  /* El tinte de marca. Los centros van FUERA del lienzo a propósito: dentro, el
+     degradado dibujaba un globo redondo flotando en la esquina —se veía en la
+     captura de Blindafón como una mancha naranja— y era otra forma reconocible.
+     Desde fuera solo entra la caída, que se lee a luz derramada por el borde. */
   background:
     radial-gradient(
-      circle at 88% 12%,
-      color-mix(in srgb, var(--acento) 14%, transparent),
-      transparent 27%
+      70% 45% at 108% -8%,
+      color-mix(in srgb, var(--acento) 15%, transparent),
+      transparent 100%
     ),
     radial-gradient(
-      ellipse at 12% 76%,
-      color-mix(in srgb, var(--acento-2) 9%, transparent),
-      transparent 39%
+      80% 50% at -12% 104%,
+      color-mix(in srgb, var(--acento-2) 10%, transparent),
+      transparent 100%
     );
 }
 
+/* EL RITMO DE LA RAMA. Antes los cuatro bloques se apilaban arriba con un gap
+   fijo y todo el sobrante caía de golpe entre las redes y el dock: un hueco de
+   ~190 px que se leía a página sin terminar.
+
+   `space-between` con `gap` de mínimo reparte ese mismo sobrante entre los
+   cuatro bloques. No se añade contenido para rellenar —eso sería resolverlo por
+   la vía fácil—: es el mismo contenido, respirando parejo. */
 .rama__contenido {
   position: relative;
   isolation: isolate;
   width: min(100%, 34rem);
-  min-height: calc(100svh - 10rem - env(safe-area-inset-bottom));
+  min-height: calc(100svh - clamp(8.5rem, 19svh, 10rem) - env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: clamp(var(--e-md), 3.25svh, var(--e-lg));
   margin: 0 auto;
 }
 
-.rama__contenido::before {
-  content: '';
-  position: absolute;
-  inset: -2rem -1rem;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: 42%;
-  background: radial-gradient(
-    ellipse at 50% 48%,
-    color-mix(in srgb, var(--fondo) 98%, transparent) 0 38%,
-    color-mix(in srgb, var(--fondo) 84%, transparent) 68%,
-    transparent 91%
-  );
-  filter: blur(0.5rem);
-}
+/* AQUÍ VIVÍA EL ÓVALO — eliminado el 2026-08-05.
+   Era un `::before` con `border-radius: 42%` y un degradado radial del color de
+   fondo al 98 %, desenfocado, cubriendo toda la zona de contenido. Es decir: una
+   elipse casi opaca pintada encima del relieve para que el texto se leyera.
+
+   Es el que Carlos vio: «le pusiste como un óvalo en toda la pantalla, se ve
+   súper feo». Los otros dos (la viñeta y la calma del shader) sumaban, pero este
+   era el dominante, y es también el que rompía la regla dura: un panel para
+   ganar legibilidad, con forma reconocible, sobre la superficie. No se sustituye
+   por nada: la legibilidad la resuelve el halo del texto. */
 
 .rama__cabecera {
   display: grid;
@@ -116,54 +123,63 @@
   transition-duration: 120ms;
 }
 
-.rama__retrato {
-  width: 3.5rem;
-  height: 3.5rem;
-  display: block;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 34%;
-  box-shadow: var(--realce), 0 0 1.75rem var(--glow);
-}
+/* AQUÍ ESTABA `.rama__retrato` — la insignia circular de esquina, con borde y
+   aro luminoso. Eliminada el 2026-08-05: llevaba tiempo sin renderizarse
+   (Rama.tsx dejó de emitirla), así que era CSS muerto, y era además el destino
+   del viaje del retrato en Transicion.tsx — la razón de que la transición de
+   entrada estuviera rota. */
 
+/* EL LOGO VA CENTRADO. DIRECCION-DE-ARTE.md §9 decía «alineado a la izquierda,
+   nunca centrado»; la REVISIÓN 2 lo cambió y manda sobre §9.
+   Se centra el bloque de identidad ENTERO —logo y línea de rol— para que se lea
+   como una cabecera deliberada y no como un logo descolocado sobre texto
+   alineado a la izquierda. De la descripción hacia abajo todo sigue a la
+   izquierda: la regla de «ni un párrafo centrado» no se toca. */
 .rama__identidad {
-  min-height: 7.75rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-end;
+  text-align: center;
 }
 
 .rama__logo {
   width: min(13.5rem, 60vw);
-  height: 6.75rem;
+  /* Contra svh además de rem: en 375×667 el logo a 6.75rem fijos era lo que
+     empujaba a ALSAI 37 px fuera de la pantalla. */
+  height: clamp(4.25rem, 11svh, 6.75rem);
   display: block;
-  margin: -0.65rem 0 -0.45rem;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
   filter: drop-shadow(0 0 1.5rem var(--glow));
 }
 
-/* El logo de Blindafón es azul marino sobre transparente: sobre un fondo
-   oscuro desaparecería. La solución anterior fue meterlo en una TARJETA CREMA
-   con borde y esquinas redondeadas — una caja blanca flotando en mitad de una
-   pieza oscura, justo lo que la dirección de arte no admite.
-   Se pasa a blanco monocromo, igual que el logo de ALSAI, conservando su alfa.
+/* ACTIVO NUEVO, 2026-08-05: Carlos sustituyó `public/blindafon.webp` por el
+   cohete-teléfono azul marino con llama naranja.
 
-   PENDIENTE DE ACTIVO: esto sacrifica el naranja del logo. Si Carlos lo quiere
-   a color, hace falta una versión de `blindafon.webp` preparada para fondo
-   oscuro; no es algo que se pueda resolver desde CSS. */
+   Se retira el `filter: brightness(0) invert(1)` que lo aplastaba a blanco
+   monocromo. Ese filtro existía porque el logo anterior era azul marino plano y
+   sobre fondo oscuro desaparecía; el nuevo trae naranja luminoso propio, así que
+   forzarlo a blanco solo mataba lo único que lo hacía visible.
+   PERO a color tal cual se perdía: la llama naranja leía, y el cuerpo azul
+   marino y el wordmark casi no. Se le sube el brillo y algo de saturación, que
+   es lo mínimo para que el azul se despegue del fondo sin inventarle un color
+   que el logo no tiene. Es la opción B de
+   `scripts/capturas/logo-blindafon/` — PROVISIONAL hasta que Carlos elija:
+     A  color tal cual              → honesto, pero el wordmark no se lee
+     B  color realzado  ← puesta    → el azul se separa y la llama queda dorada
+     C  color con luz detrás        → legible, pero el halo vuelve a leerse a caja
+     D  blanco monocromo (anterior) → legible y muerto: sacrifica el naranja
+   Cambiar de opción es cambiar esta única línea. */
 .rama[data-marca-rama='blindafon'] .rama__logo {
   width: min(11rem, 48vw);
   height: 5.5rem;
-  margin-block: -0.55rem -0.45rem;
   border: 0;
   border-radius: 0;
   padding: 0;
   background: none;
   box-shadow: none;
-  filter: brightness(0) invert(1) drop-shadow(0 0 1.5rem var(--glow));
+  filter: brightness(1.45) saturate(1.15) drop-shadow(0 0 1.5rem var(--glow));
 }
 
 .rama__wordmark {
@@ -173,8 +189,10 @@
   text-wrap: balance;
 }
 
+/* «El texto de debajo, más separado» (REVISIÓN 2). Pegado al logo se leía como
+   un pie de imagen; separado, es su propia línea. */
 .rama__rol {
-  margin: var(--e-xs) 0 0;
+  margin: var(--e-sm) 0 0;
   color: var(--mute);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -234,34 +252,69 @@
   box-shadow: 0 0 1rem var(--glow);
 }
 
+/* ── Agendar: la acción principal de la rama ──────────────────────────────
+   «Más llamativo» (REVISIÓN 2) SIN volver a la caja. Lo que le da presencia:
+     · más alto y con la tipografía más grande que el cuerpo,
+     · los dos filetes vivos, que la luz del giroscopio recorre,
+     · el icono y la flecha en el acento de la marca,
+     · la flecha que avanza al tocar.
+   Lo que sigue prohibido: fondo sólido y esquinas de 8 px. Eso es lo que Carlos
+   rechazó del primer intento y no se reabre.
+   ───────────────────────────────────────────────────────────────────────── */
 .rama__agendar {
+  position: relative;
   width: 100%;
-  min-height: 3.75rem;
+  min-height: 4.25rem;
   display: grid;
   grid-template-columns: 1.5rem minmax(0, 1fr) 1.5rem;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.875rem;
   appearance: none;
-  /* Fila, no caja. Mismo tratamiento que las filas del hub: filetes arriba y
-     abajo, sin fondo ni esquinas redondeadas. El acento vive en el icono y en
-     la flecha, no en un rectángulo de color. */
   border: 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
   border-radius: 0;
-  padding: 0.75rem 0;
+  padding: 0.875rem 0;
   background: none;
   box-shadow: none;
   color: #fff;
   font: inherit;
+  font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.25;
+  letter-spacing: -0.01em;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
   transition:
     transform var(--t-micro) var(--sal),
     opacity var(--t-micro) var(--sal);
+}
+
+/* Los dos filetes, vivos. Mismo recurso que las filas del hub: la luz los
+   recorre y es de ahí de donde sale la presencia, no de un rectángulo. */
+.rama__agendar::before,
+.rama__agendar::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--acento) calc(70% * var(--luz-roce)), transparent) var(--luz-px),
+      transparent 100%
+    ),
+    var(--line);
+}
+
+.rama__agendar::before {
+  top: 0;
+}
+
+.rama__agendar::after {
+  bottom: 0;
 }
 
 .rama__agendar > svg {
@@ -272,17 +325,25 @@
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
+  filter: drop-shadow(0 0 0.5rem var(--glow));
 }
 
 .rama__agendar-flecha {
   color: var(--acento);
   font-size: 1.125rem;
   text-align: right;
+  transition: transform var(--t-micro) var(--sal);
 }
 
 .rama__agendar:active {
-  transform: scale(0.97);
+  transform: scale(0.985);
   transition-duration: 120ms;
+}
+
+/* La flecha avanza antes de que se abra la hoja: la causa es el toque, y lo que
+   anuncia es que esto lleva a algún sitio. */
+.rama__agendar:active .rama__agendar-flecha {
+  transform: translateX(0.25rem);
 }
 
 /* A la izquierda, como todo lo demás. Centrados eran el único bloque de la
@@ -291,18 +352,21 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--e-sm);
-  /* Un margen fijo, no `auto`: empujarlos al fondo dejaba un hueco enorme en
-     mitad de la pantalla que se leía a página sin terminar. */
-  margin-top: var(--e-lg);
+  gap: var(--e-xs);
+  /* Sin margen propio: el reparto lo hace ahora el `space-between` del
+     contenedor. Un `margin-top` fijo aquí se sumaba al sobrante y era parte de
+     lo que abría el hueco. */
   margin-left: -0.6rem; /* compensa el área táctil para alinear el icono al margen */
 }
 
 /* Sin círculo ni fondo: eran botones-burbuja grises. Solo el icono, con área
-   táctil de 44 px, que es lo que exige el sistema. */
+   táctil que supera los 44 px del sistema.
+   «Más grandes y más visibles» (REVISIÓN 2): el icono sube de 1.25 a 1.5 rem y
+   el color, de 62 % a 82 %. Al 62 % competían con el fondo y se leían a nota al
+   pie; son enlaces de la marca, no una firma. */
 .rama__enlace {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: grid;
   flex: 0 0 auto;
   place-items: center;
@@ -310,7 +374,7 @@
   border-radius: 0;
   background: none;
   box-shadow: none;
-  color: rgb(255 255 255 / 62%);
+  color: rgb(255 255 255 / 82%);
   text-decoration: none;
   transition:
     color var(--t-micro) var(--sal),
@@ -319,13 +383,16 @@
 }
 
 .rama__enlace svg {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.65;
+  stroke-width: 1.55;
   stroke-linecap: round;
   stroke-linejoin: round;
+  /* El halo del texto, aplicado a un trazo: es lo que los separa del relieve
+     sin meterlos dentro de una burbuja. */
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 90%)) drop-shadow(0 0 8px rgb(0 0 0 / 65%));
 }
 
 .rama__enlace .rama__icono-punto {
@@ -345,9 +412,9 @@
   left: 0;
   z-index: 20;
   padding: 0.75rem 1.25rem max(0.75rem, env(safe-area-inset-bottom));
-  /* Un filete y un degradado suave. No una barra sólida: el relieve tiene que
-     seguir viéndose por debajo, la pieza es una superficie continua. */
-  border-top: 1px solid var(--line);
+  /* Un degradado suave, sin barra sólida: el relieve tiene que seguir viéndose
+     por debajo, la pieza es una superficie continua. El filete pasa al ::before
+     para que la luz lo recorra. */
   background: linear-gradient(
     to bottom,
     transparent,
@@ -355,6 +422,37 @@
     color-mix(in srgb, var(--fondo) 92%, transparent) 100%
   );
   pointer-events: none;
+  /* Entra al montarse la rama, después del contenido: es la última capa que
+     aparece y la que deja la pantalla lista para actuar. */
+  animation: dock-entra var(--t-medio) var(--sal) 240ms backwards;
+}
+
+/* El filete superior del dock, vivo. Es el borde que separa la acción del
+   contenido, y la luz lo recorre igual que a los demás: la franja se lee como
+   parte de la misma superficie, no como una barra pegada abajo. */
+.acciones-contacto::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--acento) calc(65% * var(--luz-roce)), transparent) var(--luz-px),
+      transparent 100%
+    ),
+    var(--line);
+}
+
+@keyframes dock-entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
 }
 
 .acciones-contacto__interior {
@@ -462,9 +560,46 @@
   }
 }
 
-.accion-contacto:active {
-  transform: scale(0.97);
+.accion-contacto:active,
+.acciones-contacto .compartir__disparador:active {
+  transform: scale(0.96);
   transition-duration: 120ms;
+}
+
+/* ── Entrada escalonada de la rama ────────────────────────────────────────
+   60 ms entre bloques, en el mismo orden en que se leen. Cada uno tiene su
+   causa: acabas de elegir una marca y la marca se presenta. Solo transform y
+   opacity, y con los tiempos del sistema.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.rama__identidad,
+.rama__presentacion,
+.rama__agendar,
+.rama__enlaces {
+  animation: rama-entra var(--t-medio) var(--sal) backwards;
+}
+
+.rama__identidad {
+  animation-duration: var(--t-marca);
+}
+
+.rama__presentacion {
+  animation-delay: 60ms;
+}
+
+.rama__agendar {
+  animation-delay: 120ms;
+}
+
+.rama__enlaces {
+  animation-delay: 180ms;
+}
+
+@keyframes rama-entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
 }
 
 .hoja-agendar {
@@ -656,5 +791,24 @@
 
   .hoja-agendar__panel {
     animation-duration: 150ms;
+  }
+
+  /* Las entradas pasan a un fundido único de 150 ms, sin desplazamiento y sin
+     escalonar. El relieve sigue visible pero congelado, y con él la luz: las
+     variables `--luz-*` no se publican nunca, así que los filetes se quedan en
+     su posición de reposo. */
+  .rama__identidad,
+  .rama__presentacion,
+  .rama__agendar,
+  .rama__enlaces,
+  .acciones-contacto {
+    animation: rama-aparece 150ms linear backwards;
+    animation-delay: 0ms;
+  }
+
+  @keyframes rama-aparece {
+    from {
+      opacity: 0;
+    }
   }
 }

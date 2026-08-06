@@ -51,7 +51,6 @@ uniform vec3  uFondo;
 uniform vec3  uAcento;
 uniform vec3  uAcento2;
 uniform float uGrosor;    // en píxeles de DISPOSITIVO: el JS ya multiplicó por el dpr
-uniform float uCalma;     // 0..1 — cuánto se aplana el relieve bajo el texto
 
 /* Los valores que cerró Carlos. Constantes a propósito: no son ajustables en
    producción, se ajustaron en el laboratorio y aquí ya están decididos. */
@@ -82,11 +81,13 @@ void main() {
   /* La luz desplaza el apilado verticalmente. */
   float desplaz = uLuz.y * 0.026;
 
-  /* LA CALMA. El relieve se aplana y se apaga donde vive el texto, como si las
-     letras tuvieran peso sobre la tela. Resuelve la legibilidad sin meter una
-     caja ni un panel de vidrio: no hay recuadro, hay una zona en reposo. */
-  float calma = smoothstep(0.40, 0.72, v) * uCalma;
-  float ampEf = RELIEVE * mix(1.0, 0.45, calma);
+  /* LA CALMA — ELIMINADA el 2026-08-05 por decisión de Carlos.
+     Aplanaba y apagaba el relieve de la mitad inferior con un smoothstep. Sumada
+     a la viñeta de abajo, las dos juntas dibujaban una mancha ovalada oscura
+     sobre el relieve: «le pusiste como un óvalo en toda la pantalla, se ve súper
+     feo». La legibilidad la resuelve SOLO el halo del texto (--halo), que ya se
+     verificó que aguanta sin ayuda del fondo. */
+  float ampEf = RELIEVE;
 
   /* Índice de línea continuo. Los enteros son las líneas. */
   float S  = ((v - 0.02 - campo(u, v, t) * ampEf - desplaz) / 0.98) * DENS;
@@ -116,12 +117,16 @@ void main() {
     ? mix(uAcento, vec3(1.0), clamp((sp - 0.35) * 1.5, 0.0, 1.0))
     : mix(uAcento2, uAcento, clamp(sp * 2.2, 0.0, 1.0));
 
-  float alfa = (PISO + sp * 0.80) * mix(1.0, 0.22, calma);
+  float alfa = PISO + sp * 0.80;
   vec3 salida = uFondo + linea * col * alfa;
 
-  /* Viñeta: hunde los bordes, sube el centro. Sin esto se ve plano. */
-  float vig = smoothstep(1.05, 0.30, distance(uv, vec2(0.5, 0.55)) * 1.55);
-  salida *= mix(0.50, 1.0, vig);
+  /* LA VIÑETA — ELIMINADA el 2026-08-05, misma razón que la calma. Era un
+     smoothstep sobre la distancia al punto (0.5, 0.55) que hundía los
+     bordes hasta el 50 %: una elipse centrada y desplazada, con forma
+     perfectamente reconocible. No se sustituye por otra atenuación: cualquier
+     cosa con centro vuelve a dibujar una forma. El relieve llega igual de vivo a
+     los cuatro bordes, que es lo que pide la idea rectora — una superficie que
+     no se recorta nunca. */
 
   /* Grano: mata el bandeo en degradados oscuros sobre OLED. */
   salida += (fract(sin(dot(gl_FragCoord.xy, vec2(127.1, 311.7))) * 43758.5) - 0.5) * 0.010;

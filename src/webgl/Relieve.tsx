@@ -3,12 +3,14 @@ import { Renderer, Program, Mesh, Triangle, Vec2, Vec3 } from 'ogl';
 import { FRAG, VERT } from './relieve.glsl';
 import { PALETA, type Marca } from '../config/paleta';
 import { obtenerInclinacion } from '../lib/inclinacion';
+import { publicarLuz } from '../lib/luzCss';
 import { crearMonitorFps } from '../lib/monitorFps';
 
 /** Grosor base de la línea, en píxeles CSS. Valor cerrado por Carlos. */
 const GROSOR_CSS = 0.45;
-/** Cuánto se aplana el relieve bajo el texto. Ver DIRECCION-DE-ARTE.md §2. */
-const CALMA = 0.85;
+
+/* CALMA eliminada el 2026-08-05: junto con la viñeta dibujaba el óvalo que
+   Carlos rechazó. Ver el comentario en relieve.glsl.ts. */
 
 /**
  * El fondo. Un quad a pantalla completa con el shader del relieve.
@@ -51,7 +53,6 @@ export default function Relieve({ marca }: { marca: Marca }) {
         uAcento: { value: new Vec3(...p0.acento) },
         uAcento2: { value: new Vec3(...p0.acento2) },
         uGrosor: { value: GROSOR_CSS },
-        uCalma: { value: CALMA },
       },
     });
 
@@ -102,6 +103,10 @@ export default function Relieve({ marca }: { marca: Marca }) {
       if (inclinacion) {
         const luz = inclinacion.leer(dt);
         program.uniforms.uLuz.value.set(luz.x, luz.y);
+        // La MISMA luz, publicada en CSS para el retrato y los botones. Se hace
+        // aquí y no en un bucle aparte porque `leer()` integra el resorte:
+        // llamarlo dos veces por frame alteraría la dinámica que cerró Carlos.
+        publicarLuz(luz.x, luz.y);
       }
 
       // La paleta persigue a la marca activa: el fondo cambia de marca junto con la página.
