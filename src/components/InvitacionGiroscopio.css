@@ -1,0 +1,69 @@
+/* La invitación del giroscopio. Ver DIRECCION-DE-ARTE.md §8.
+
+   DISCRETA por decisión de Carlos: sin píldora, sin borde, sin blur.
+   Es una nota al pie, no un botón. Lo único que la hace legible es el mismo
+   halo por letra que el resto del texto — no una caja detrás. */
+
+.invitacion-giro {
+  position: fixed;
+  left: 50%;
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  z-index: 6;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+
+  background: none;
+  border: 0;
+  padding: 0.7rem 0.9rem;
+  font: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  color: rgb(255 255 255 / 52%);
+  text-shadow: var(--halo-tenue);
+  cursor: pointer;
+
+  opacity: 0;
+  animation: invitacion-entra 900ms var(--sal) forwards;
+}
+
+.invitacion-giro svg {
+  flex: none;
+}
+
+.invitacion-giro:active {
+  color: rgb(255 255 255 / 80%);
+}
+
+.invitacion-giro--sale {
+  animation: invitacion-sale 420ms var(--sal) forwards;
+}
+
+@keyframes invitacion-entra {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes invitacion-sale {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invitacion-giro,
+  .invitacion-giro--sale {
+    animation-duration: 150ms;
+    transform: translateX(-50%);
+  }
+}

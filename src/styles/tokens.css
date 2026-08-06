@@ -26,6 +26,46 @@
   --e-lg: 2.5rem;
   --e-xl: 4rem;
 
+  --margen-lateral: 1.25rem;
+  --ancho-texto: 22rem;
+
+  /* ── Tipografía ────────────────────────────────────────────────────────
+     El hub lleva SU PROPIA display; las ramas usan Space Grotesk. Ese cambio
+     es parte de la bifurcación: Space Grotesk es la display de las dos
+     empresas, así que usarla también en el hub borraría la distinción y la
+     entrada parecería ya de ALSAI. Ver DIRECCION-DE-ARTE.md §5. */
+  --display-hub: 'Instrument Serif', 'Space Grotesk', Georgia, serif;
+  --display-hub-peso: 400;
+  --display-marca: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --cuerpo: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* ── El halo del texto ─────────────────────────────────────────────────
+     Obligatorio: el texto va en blanco sobre el relieve y sin halo es
+     ilegible cuando la luz barre por debajo. Fue la causa real de «al
+     interactuar el fondo empeora».
+
+     La primera capa, de 3 px, es la que hace el trabajo. Las capas anchas dan
+     volumen pero NO legibilidad: un halo difuso se reparte demasiado y el
+     texto pequeño se pierde igual. Ese fue el primer intento fallido. */
+  --halo:
+    0 0 3px rgb(0 0 0 / 100%),
+    0 1px 3px rgb(0 0 0 / 98%),
+    0 2px 12px rgb(0 0 0 / 90%),
+    0 0 34px rgb(0 0 0 / 67%),
+    0 0 72px rgb(0 0 0 / 48%);
+
+  /* Para texto pequeño, que es el más frágil: más cerrado, menos difuso. */
+  --halo-cerrado:
+    0 0 2px rgb(0 0 0 / 100%),
+    0 0 5px rgb(0 0 0 / 96%),
+    0 1px 10px rgb(0 0 0 / 80%);
+
+  /* Para elementos deliberadamente discretos, como la invitación. */
+  --halo-tenue:
+    0 0 3px rgb(0 0 0 / 95%),
+    0 1px 6px rgb(0 0 0 / 85%),
+    0 0 18px rgb(0 0 0 / 65%);
+
   --sal: cubic-bezier(0.16, 1, 0.3, 1);
   --t-micro: 240ms;
   --t-medio: 420ms;

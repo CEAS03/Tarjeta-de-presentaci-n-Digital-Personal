@@ -10,7 +10,16 @@ type PropiedadesBotonMarca = {
   onSeleccionar: AlSeleccionarMarca;
 };
 
-/** Una bifurcación completa: texto, flecha y área táctil pertenecen al mismo botón. */
+/**
+ * Una bifurcación completa: texto, flecha y área táctil pertenecen al mismo botón.
+ *
+ * NO es una caja. Ver DIRECCION-DE-ARTE.md §6: es una FILA de una lista
+ * editorial, separada por filetes. El primer intento las hizo rectángulos de
+ * color con esquinas redondeadas y se leían a formulario, no a tarjeta cara.
+ *
+ * El punto de 6 px es el único color de marca visible en el hub: anticipa a
+ * dónde lleva cada fila sin que la entrada deje de ser platino.
+ */
 export function BotonMarca({
   marca,
   nombre,
@@ -29,6 +38,8 @@ export function BotonMarca({
       onClick={seleccionar}
       aria-label={`${nombre}: ${descripcion}`}
     >
+      <span className="boton-marca__punto" aria-hidden="true" />
+
       <span className="boton-marca__texto">
         <strong className="boton-marca__nombre">{nombre}</strong>
         <span className="boton-marca__descripcion">{descripcion}</span>

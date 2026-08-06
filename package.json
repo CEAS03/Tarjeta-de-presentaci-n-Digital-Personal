@@ -10,6 +10,9 @@
     "preview": "vite preview --host --port 5191"
   },
   "dependencies": {
+    "@fontsource/bricolage-grotesque": "^5.3.0",
+    "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
     "@fontsource/inter": "^5.1.0",
     "@fontsource/space-grotesk": "^5.1.0",
     "gsap": "^3.15.0",

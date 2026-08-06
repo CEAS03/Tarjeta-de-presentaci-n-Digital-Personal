@@ -14,7 +14,7 @@ body {
   margin: 0;
   background: var(--fondo);
   color: var(--bone);
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; /* impeccable-disable-line overused-font -- tipografía compartida por las dos marcas */
+  font-family: var(--cuerpo); /* impeccable-disable-line overused-font -- tipografía compartida por las dos marcas */
   font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -26,11 +26,25 @@ body {
 h1,
 h2,
 h3 {
-  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif; /* impeccable-disable-line overused-font -- display oficial de ALSAI y Blindafón */
+  font-family: var(--display-marca); /* impeccable-disable-line overused-font -- display oficial de ALSAI y Blindafón */
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
   margin: 0;
+}
+
+/* EL HALO, heredado por todo el texto de la aplicación.
+   El texto va en blanco sobre el relieve; sin halo es ilegible cuando la luz
+   barre por debajo. Ver DIRECCION-DE-ARTE.md §5. Es una sombra, no un panel:
+   por eso no se lee como recurso ni mete una caja. */
+.aplicacion {
+  text-shadow: var(--halo);
+}
+
+/* El canvas del WebGL y las imágenes no heredan sombra de texto, pero los
+   SVG en línea sí conviene que la lleven: son iconos sobre el mismo fondo. */
+.aplicacion svg {
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 85%));
 }
 
 /* El fondo. Debajo queda un degradado CSS para que la primera pantalla nunca

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { tarjeta, type ClaveMarca } from '../config/tarjeta';
 import BotonMarca, { type AlSeleccionarMarca } from './BotonMarca';
-import TarjetaFisica from './TarjetaFisica';
+import Retrato from './Retrato';
 import './Hub.css';
 
 type PropiedadesHub = {
@@ -12,7 +12,13 @@ type PropiedadesHub = {
 
 const ordenMarcas: ClaveMarca[] = ['alsai', 'blindafon'];
 
-/** Presentación personal y bifurcación hacia los dos negocios. */
+/**
+ * Presentación personal y bifurcación hacia los dos negocios.
+ * Composición completa en DIRECCION-DE-ARTE.md §3.
+ *
+ * El retrato sangra arriba y se funde con el relieve; el nombre arranca justo
+ * donde la foto muere. Todo alineado a la izquierda: ni un párrafo centrado.
+ */
 export function Hub({
   onSeleccionarMarca,
   onGuardarContacto,
@@ -22,19 +28,17 @@ export function Hub({
 
   return (
     <section className="hub" aria-labelledby="hub-nombre">
+      <Retrato src={persona.fotoSrc} nombre={persona.nombre} />
+
       <div className="hub__contenido">
-        <div className="hub__presentacion">
-          <TarjetaFisica fotoSrc={persona.fotoSrc} nombre={persona.nombre} />
+        <header className="hub__identidad">
+          <h1 className="hub__nombre" id="hub-nombre">
+            {persona.nombre}
+          </h1>
+          <p className="hub__ciudad">{persona.ciudad}</p>
+        </header>
 
-          <header className="hub__identidad">
-            <h1 className="hub__nombre" id="hub-nombre">
-              {persona.nombre}
-            </h1>
-            <p className="hub__ciudad">{persona.ciudad}</p>
-          </header>
-
-          <p className="hub__descripcion">{persona.descripcion}</p>
-        </div>
+        <p className="hub__descripcion">{persona.descripcion}</p>
 
         <section className="hub__eleccion" aria-labelledby="hub-pregunta">
           <h2 className="hub__pregunta" id="hub-pregunta">
@@ -64,6 +68,9 @@ export function Hub({
               </svg>
               <span>{tarjeta.acciones.guardarPersonal}</span>
             </button>
+            <span className="hub__separador" aria-hidden="true">
+              ·
+            </span>
             {accionCompartir}
           </div>
         </section>

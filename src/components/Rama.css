@@ -145,16 +145,25 @@
   filter: drop-shadow(0 0 1.5rem var(--glow));
 }
 
+/* El logo de Blindafón es azul marino sobre transparente: sobre un fondo
+   oscuro desaparecería. La solución anterior fue meterlo en una TARJETA CREMA
+   con borde y esquinas redondeadas — una caja blanca flotando en mitad de una
+   pieza oscura, justo lo que la dirección de arte no admite.
+   Se pasa a blanco monocromo, igual que el logo de ALSAI, conservando su alfa.
+
+   PENDIENTE DE ACTIVO: esto sacrifica el naranja del logo. Si Carlos lo quiere
+   a color, hace falta una versión de `blindafon.webp` preparada para fondo
+   oscuro; no es algo que se pueda resolver desde CSS. */
 .rama[data-marca-rama='blindafon'] .rama__logo {
-  width: min(12rem, 52vw);
-  height: 8rem;
+  width: min(11rem, 48vw);
+  height: 5.5rem;
   margin-block: -0.55rem -0.45rem;
-  border: 1px solid var(--line);
-  border-radius: 1.25rem;
-  padding: 0.35rem 0.75rem;
-  background: color-mix(in srgb, var(--bone) 88%, var(--fondo));
-  box-shadow: var(--sombra), var(--realce), 0 0 2rem var(--glow);
-  filter: brightness(1.08) saturate(1.08);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  filter: brightness(0) invert(1) drop-shadow(0 0 1.5rem var(--glow));
 }
 
 .rama__wordmark {
@@ -200,17 +209,21 @@
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
+  /* Etiqueta, no píldora. El dato ya es fuerte por sí mismo; encerrarlo en una
+     cápsula con borde lo convertía en un adorno de plantilla. */
   margin: 0;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.5rem 0.8rem;
-  background: color-mix(in srgb, var(--bone) 4%, transparent);
-  box-shadow: var(--realce);
-  color: var(--bone);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: rgb(255 255 255 / 88%);
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.4;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: var(--halo-cerrado);
 }
 
 .rama__prueba-marca {
@@ -229,12 +242,17 @@
   align-items: center;
   gap: 0.75rem;
   appearance: none;
-  border: 1px solid color-mix(in srgb, var(--acento) 45%, transparent);
-  border-radius: 1rem;
-  padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--acento) 9%, var(--fondo));
-  box-shadow: var(--realce), 0 0 2rem color-mix(in srgb, var(--glow) 55%, transparent);
-  color: var(--bone);
+  /* Fila, no caja. Mismo tratamiento que las filas del hub: filetes arriba y
+     abajo, sin fondo ni esquinas redondeadas. El acento vive en el icono y en
+     la flecha, no en un rectángulo de color. */
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0.75rem 0;
+  background: none;
+  box-shadow: none;
+  color: #fff;
   font: inherit;
   font-weight: 600;
   line-height: 1.25;
@@ -267,25 +285,32 @@
   transition-duration: 120ms;
 }
 
+/* A la izquierda, como todo lo demás. Centrados eran el único bloque de la
+   página que rompía la alineación. */
 .rama__enlaces {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: clamp(0.625rem, 3vw, var(--e-sm));
-  margin-top: auto;
+  justify-content: flex-start;
+  gap: var(--e-sm);
+  /* Un margen fijo, no `auto`: empujarlos al fondo dejaba un hueco enorme en
+     mitad de la pantalla que se leía a página sin terminar. */
+  margin-top: var(--e-lg);
+  margin-left: -0.6rem; /* compensa el área táctil para alinear el icono al margen */
 }
 
+/* Sin círculo ni fondo: eran botones-burbuja grises. Solo el icono, con área
+   táctil de 44 px, que es lo que exige el sistema. */
 .rama__enlace {
-  width: 3rem;
-  height: 3rem;
+  width: 44px;
+  height: 44px;
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--bone) 4%, transparent);
-  box-shadow: var(--realce);
-  color: var(--mute);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: rgb(255 255 255 / 62%);
   text-decoration: none;
   transition:
     color var(--t-micro) var(--sal),
@@ -319,12 +344,15 @@
   bottom: 0;
   left: 0;
   z-index: 20;
-  padding: 1.5rem 1.25rem max(1rem, env(safe-area-inset-bottom));
+  padding: 0.75rem 1.25rem max(0.75rem, env(safe-area-inset-bottom));
+  /* Un filete y un degradado suave. No una barra sólida: el relieve tiene que
+     seguir viéndose por debajo, la pieza es una superficie continua. */
+  border-top: 1px solid var(--line);
   background: linear-gradient(
     to bottom,
     transparent,
-    color-mix(in srgb, var(--fondo) 92%, transparent) 28%,
-    var(--fondo) 58%
+    color-mix(in srgb, var(--fondo) 72%, transparent) 40%,
+    color-mix(in srgb, var(--fondo) 92%, transparent) 100%
   );
   pointer-events: none;
 }
@@ -338,30 +366,42 @@
   pointer-events: auto;
 }
 
+/* SIN CAJAS. Eran tres rectángulos grises con borde y sombra: se leían a
+   formulario, igual que los botones del hub. Ahora son tres columnas de una
+   misma franja, separadas por filetes verticales, sobre el relieve.
+   Ver DIRECCION-DE-ARTE.md §6 y §9. */
 .accion-contacto {
   min-width: 0;
   min-height: 3.75rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
+  gap: 0.4rem;
   appearance: none;
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  padding: 0.75rem;
-  box-shadow: var(--sombra), var(--realce);
-  color: var(--bone);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0.75rem 0.25rem;
+  box-shadow: none;
+  color: #fff;
   font: inherit;
-  font-size: clamp(0.75rem, 3.5vw, 0.875rem);
-  font-weight: 600;
+  font-size: clamp(0.75rem, 3.5vw, 0.8125rem);
+  font-weight: 500;
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
   white-space: nowrap;
+  text-shadow: var(--halo-cerrado);
   cursor: pointer;
   transition:
     transform var(--t-micro) var(--sal),
     opacity var(--t-micro) var(--sal);
+}
+
+/* Los filetes entre columnas sustituyen a los bordes de las cajas. */
+.acciones-contacto__interior > * + * {
+  border-left: 1px solid var(--line);
 }
 
 .accion-contacto svg {
@@ -375,24 +415,31 @@
   stroke-linejoin: round;
 }
 
-.accion-contacto--guardar {
-  background: color-mix(in srgb, var(--bone) 8%, var(--fondo));
+/* WhatsApp es la acción principal. Se distingue por COLOR, no por una caja:
+   el icono toma el acento de la marca y su glow. Es lo que la hace saltar sin
+   convertirla en un rectángulo. */
+.accion-contacto--whatsapp {
+  font-weight: 600;
 }
 
-.accion-contacto--whatsapp {
-  border-color: color-mix(in srgb, var(--acento) 42%, transparent);
-  background: color-mix(in srgb, var(--acento) 20%, var(--fondo));
-  box-shadow: var(--sombra), var(--realce), 0 0 1.5rem var(--glow);
+.accion-contacto--whatsapp svg {
+  color: var(--acento);
+  filter: drop-shadow(0 0 8px var(--glow));
 }
 
 .acciones-contacto .compartir__disparador {
   min-height: 3.75rem;
-  border-color: color-mix(in srgb, var(--bone) 18%, transparent);
-  padding: 0.75rem;
-  background: color-mix(in srgb, var(--bone) 7%, var(--fondo));
-  box-shadow: var(--sombra), var(--realce);
-  color: var(--bone);
-  font-size: clamp(0.75rem, 3.5vw, 0.875rem);
+  flex-direction: column;
+  gap: 0.4rem;
+  border: 0;
+  border-radius: 0;
+  padding: 0.75rem 0.25rem;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  font-size: clamp(0.75rem, 3.5vw, 0.8125rem);
+  font-weight: 500;
+  text-shadow: var(--halo-cerrado);
 }
 
 @media (max-width: 30rem) {

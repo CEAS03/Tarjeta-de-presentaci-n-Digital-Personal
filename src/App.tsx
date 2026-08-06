@@ -7,6 +7,7 @@ import { descargarVcard } from './lib/vcard';
 import { haptica } from './lib/haptica';
 import Transicion, { type ControlTransicion } from './components/Transicion';
 import Compartir from './components/Compartir';
+import InvitacionGiroscopio from './components/InvitacionGiroscopio';
 import { registrarApertura, registrarEvento } from './lib/analitica';
 
 /* El fondo se carga aparte y se monta después del primer pintado, para que la
@@ -39,6 +40,9 @@ export default function App() {
       </Suspense>
 
       <Transicion ref={transicion} fotoSrc={tarjeta.persona.fotoSrc} />
+
+      {/* Solo se monta en iOS, que es donde hay un permiso que pedir. */}
+      <InvitacionGiroscopio />
 
       <main className="aplicacion">
         <p className="solo-lector" aria-live="polite">

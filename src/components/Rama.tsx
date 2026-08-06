@@ -91,16 +91,11 @@ export function Rama({ marca, onVolver, accionCompartir }: PropiedadesRama) {
               </svg>
               <span>{acciones.volver}</span>
             </button>
-
-            <img
-              className="rama__retrato"
-              src={persona.fotoSrc}
-              alt={`Retrato de ${persona.nombre}`}
-              width="640"
-              height="640"
-              decoding="async"
-            />
           </div>
+          {/* El retrato NO aparece en la rama: aquí manda el logo de la marca.
+              Y nunca se convierte en un avatar circular de esquina — era un aro
+              blanco flotando, justo el tipo de caja que la pieza no admite.
+              Ver DIRECCION-DE-ARTE.md §4 y §9. */}
 
           <div className="rama__identidad">
             {datos.logoSrc ? (

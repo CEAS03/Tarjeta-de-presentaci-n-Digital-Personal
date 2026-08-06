@@ -2,12 +2,17 @@ import { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle, Vec2, Vec3 } from 'ogl';
 import { FRAG, VERT } from './relieve.glsl';
 import { PALETA, type Marca } from '../config/paleta';
-import { crearInclinacion } from '../lib/inclinacion';
+import { obtenerInclinacion } from '../lib/inclinacion';
 import { crearMonitorFps } from '../lib/monitorFps';
+
+/** Grosor base de la línea, en píxeles CSS. Valor cerrado por Carlos. */
+const GROSOR_CSS = 0.45;
+/** Cuánto se aplana el relieve bajo el texto. Ver DIRECCION-DE-ARTE.md §2. */
+const CALMA = 0.85;
 
 /**
  * El fondo. Un quad a pantalla completa con el shader del relieve.
- * Ver DISENO.md §7-bis.
+ * Especificación y valores en DIRECCION-DE-ARTE.md §2.
  */
 export default function Relieve({ marca }: { marca: Marca }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -45,7 +50,8 @@ export default function Relieve({ marca }: { marca: Marca }) {
         uFondo: { value: new Vec3(...p0.fondo) },
         uAcento: { value: new Vec3(...p0.acento) },
         uAcento2: { value: new Vec3(...p0.acento2) },
-        uCongelado: { value: congelado ? 1 : 0 },
+        uGrosor: { value: GROSOR_CSS },
+        uCalma: { value: CALMA },
       },
     });
 
@@ -60,16 +66,21 @@ export default function Relieve({ marca }: { marca: Marca }) {
     const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
 
     const redimensionar = () => {
-      renderer.dpr = Math.min(devicePixelRatio || 1, 2) * escala;
+      const dpr = Math.min(devicePixelRatio || 1, 2) * escala;
+      renderer.dpr = dpr;
       renderer.setSize(innerWidth, innerHeight);
       program.uniforms.uRes.value.set(gl.canvas.width, gl.canvas.height);
+      // El grosor viaja en píxeles de dispositivo: así una línea de 0.45 px CSS
+      // se ve igual de fina en cualquier teléfono, y no cambia cuando el
+      // monitor de FPS baja la escala de render.
+      program.uniforms.uGrosor.value = GROSOR_CSS * dpr;
     };
     redimensionar();
     addEventListener('resize', redimensionar);
 
     // Movimiento reducido conserva el relieve como textura, pero deja fija
     // tanto la superficie como la luz y no registra sensores ni puntero.
-    const inclinacion = congelado ? null : crearInclinacion();
+    const inclinacion = congelado ? null : obtenerInclinacion();
     const monitor = crearMonitorFps((nueva) => {
       escala = nueva;
       redimensionar();
@@ -84,7 +95,9 @@ export default function Relieve({ marca }: { marca: Marca }) {
       anterior = ahora;
       monitor(dt, ahora);
 
-      program.uniforms.uTiempo.value += dt;
+      // VEL 0.80: la velocidad de la deriva propia de las ondas.
+      // Congelado no avanza el tiempo, así que la superficie queda quieta.
+      if (!congelado) program.uniforms.uTiempo.value += dt * 0.8;
 
       if (inclinacion) {
         const luz = inclinacion.leer(dt);
@@ -111,7 +124,7 @@ export default function Relieve({ marca }: { marca: Marca }) {
     return () => {
       cancelAnimationFrame(raf);
       removeEventListener('resize', redimensionar);
-      inclinacion?.destruir();
+      // La inclinación es compartida y la sigue usando la invitación: no se destruye aquí.
       mesh.geometry.remove();
       program.remove();
       gl.deleteShader(program.vertexShader);

@@ -1,22 +1,39 @@
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  *  EL RELIEVE — el fondo de la tarjeta.
- *  Especificación completa en DISENO.md §7-bis. No improvisar sobre esto.
  *
- *  Idea: una superficie de líneas de nivel (topográfica) con el ondulado suave
- *  de la seda, iluminada por UNA sola luz direccional. No hay ningún objeto en
- *  pantalla: ni esfera, ni mancha, ni partículas.
+ *  Especificación y valores cerrados en DIRECCION-DE-ARTE.md §2.
+ *  Portado desde `public/lab-fondo.html`, que es donde Carlos ajustó los
+ *  números con el dedo en su teléfono el 2026-08-05. Si algo aquí deja de
+ *  parecerse al laboratorio, el que está mal es este archivo.
  *
- *  Las ondas se mueven solas. La luz la mueve el teléfono (giroscopio).
+ *  QUÉ CAMBIÓ RESPECTO A LA VERSIÓN RECHAZADA — importa entenderlo:
+ *
+ *    · Aquella dibujaba isolíneas de un ruido fbm 2D. Eso da contornos
+ *      irregulares en todas direcciones, sin orden, y se leía a «rayas densas
+ *      y duras sin sentido». Era el problema, no los parámetros.
+ *    · Esta dibuja LÍNEAS HORIZONTALES APILADAS desplazadas por un campo de
+ *      altura de dos senos cruzados. El orden es lo que da el aire de
+ *      instrumento, de mapa topográfico.
+ *    · La luz ilumina cada tramo según la NORMAL 2D DE SU CURVA (especular
+ *      anisotrópico), no según la normal 3D de una superficie. Es lo que hace
+ *      que el brillo RECORRA en vez de encenderse y apagarse.
+ *    · Fuera el halo radial: era una mancha que seguía a la luz, justo lo que
+ *      Carlos ya había descartado del cromo líquido.
+ *
+ *  LA INVERSIÓN que hace posible dibujar líneas en un fragment shader: en vez
+ *  de recorrer las líneas y trazarlas (como haría un canvas 2D), para cada
+ *  píxel se calcula A QUÉ LÍNEA pertenece resolviendo la altura hacia atrás.
+ *  fract() da la distancia a la línea más cercana; fwidth() mantiene el grosor
+ *  constante en pantalla, que es lo que evita que se emplasten.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 export const VERT = /* glsl */ `
-attribute vec2 uv;
 attribute vec2 position;
 varying vec2 vUv;
 void main() {
-  vUv = uv;
+  vUv = position * 0.5 + 0.5;
   gl_Position = vec4(position, 0.0, 1.0);
 }
 `;
@@ -29,89 +46,86 @@ varying vec2 vUv;
 
 uniform vec2  uRes;
 uniform float uTiempo;
-uniform vec2  uLuz;      // dirección de la luz, YA amortiguada (-1..1). Ver lib/inclinacion.ts
+uniform vec2  uLuz;       // dirección de la luz, YA amortiguada (-1..1). Ver lib/inclinacion.ts
 uniform vec3  uFondo;
 uniform vec3  uAcento;
 uniform vec3  uAcento2;
-uniform float uCongelado; // 1.0 con prefers-reduced-motion: las ondas se detienen
+uniform float uGrosor;    // en píxeles de DISPOSITIVO: el JS ya multiplicó por el dpr
+uniform float uCalma;     // 0..1 — cuánto se aplana el relieve bajo el texto
 
-float hash(vec2 p) {
-  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+/* Los valores que cerró Carlos. Constantes a propósito: no son ajustables en
+   producción, se ajustaron en el laboratorio y aquí ya están decididos. */
+const float DENS    = 33.0;
+const float NITIDEZ = 0.70;
+const float POT     = 4.5;
+const float RELIEVE = 0.04;
+const float PISO    = 0.01;
+
+/* Campo de altura: dos senos cruzados. NADA de fbm — el ruido fue lo rechazado. */
+float campo(float u, float v, float t) {
+  return sin(u * 4.2 + t * 0.28) * cos(v * 3.6 - t * 0.20)
+       + sin((u + v) * 5.1 - t * 0.16) * 0.55;
 }
 
-float ruido(vec2 p) {
-  vec2 i = floor(p), f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i),            hash(i + vec2(1.0, 0.0)), u.x),
-             mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
-}
-
-float fbm(vec2 p) {
-  float v = 0.0, a = 0.5;
-  for (int i = 0; i < 5; i++) { v += a * ruido(p); p *= 2.03; a *= 0.5; }
-  return v;
-}
-
-/* Campo de altura: la seda pone el ondulado largo, el fbm pone el relieve irregular. */
-float altura(vec2 p, float t) {
-  float seda = sin(p.x * 2.1 + t * 0.30) * 0.50
-             + sin((p.x * 0.7 + p.y * 1.7) * 2.6 - t * 0.21) * 0.30;
-  float relieve = fbm(p * 1.10 + vec2(t * 0.040, -t * 0.028)) * 2.0 - 1.0;
-  return seda * 0.55 + relieve * 0.90;
+/* Derivada analítica respecto a u: la pendiente de la curva en ese punto. */
+float pendiente(float u, float v, float t) {
+  return 4.2 * cos(u * 4.2 + t * 0.28) * cos(v * 3.6 - t * 0.20)
+       + 5.1 * 0.55 * cos((u + v) * 5.1 - t * 0.16);
 }
 
 void main() {
-  float aspecto = uRes.x / uRes.y;
-  vec2  p = vec2(vUv.x * aspecto, vUv.y) * 3.1;
-  float t = uTiempo * (1.0 - uCongelado);
+  vec2  uv = vUv;
+  float u  = uv.x;
+  float v  = 1.0 - uv.y;      /* v crece hacia abajo, como en la maqueta */
+  float t  = uTiempo;
 
-  float h = altura(p, t);
+  /* La luz desplaza el apilado verticalmente. */
+  float desplaz = uLuz.y * 0.026;
 
-  /* Líneas de nivel. fwidth mantiene el grosor constante en pantalla,
-     así no se emplastan donde la pendiente es fuerte. */
-  float dens = 9.0;
-  float f    = fract(h * dens);
-  float d    = min(f, 1.0 - f);
-  float w    = fwidth(h * dens);
-  float linea = 1.0 - smoothstep(0.0, w * 1.7, d);
+  /* LA CALMA. El relieve se aplana y se apaga donde vive el texto, como si las
+     letras tuvieran peso sobre la tela. Resuelve la legibilidad sin meter una
+     caja ni un panel de vidrio: no hay recuadro, hay una zona en reposo. */
+  float calma = smoothstep(0.40, 0.72, v) * uCalma;
+  float ampEf = RELIEVE * mix(1.0, 0.45, calma);
 
-  /* Normal del relieve, por diferencias finitas. */
-  vec2  e  = vec2(0.0030, 0.0);
-  float hx = altura(p + e.xy, t) - altura(p - e.xy, t);
-  float hy = altura(p + e.yx, t) - altura(p - e.yx, t);
-  vec3  n  = normalize(vec3(-hx, -hy, 0.055));
+  /* Índice de línea continuo. Los enteros son las líneas. */
+  float S  = ((v - 0.02 - campo(u, v, t) * ampEf - desplaz) / 0.98) * DENS;
+  float f  = fract(S);
+  float d  = min(f, 1.0 - f);
+  float w  = max(fwidth(S), 1e-6);
+  float dPx = d / w;          /* la misma distancia, ya en píxeles */
 
-  /* UNA luz. La mueve el giroscopio, con inercia larga (ver inclinacion.ts). */
-  vec3 L = normalize(vec3(uLuz, 0.80));
-  vec3 V = vec3(0.0, 0.0, 1.0);
-  vec3 Hv = normalize(L + V);
+  /* Normal 2D de la curva, en píxeles. */
+  float dyduPx = pendiente(u, v, t) * ampEf * uRes.y;
+  vec2  n = normalize(vec2(-dyduPx, uRes.x));
 
-  float difuso = max(dot(n, L), 0.0);
-  /* Exponente BAJO a propósito: brillo ANCHO. Uno estrecho parpadea, uno ancho barre.
-     Fue la queja concreta de las pruebas: al mover rápido no se alcanzaba a percibir. */
-  float spec = pow(max(dot(n, Hv), 0.0), 7.0);
+  /* UNA luz. El eje Y va invertido respecto a uLuz porque aquí v crece hacia
+     abajo. El -0.55 es el sesgo hacia arriba: sin él la luz se queda centrada
+     y el barrido no se percibe. */
+  vec2  L  = normalize(vec2(uLuz.x * 1.1, -uLuz.y * 1.1 - 0.55) + vec2(1e-5));
+  float sp = pow(abs(dot(n, L)), POT);
 
-  /* Recorrido de color: acento-2 → acento → blanco en la cresta del brillo. */
-  vec3 colLinea = mix(uAcento2, uAcento, clamp(difuso * 1.45, 0.0, 1.0));
-  colLinea = mix(colLinea, vec3(1.0), clamp((spec - 0.30) * 1.7, 0.0, 1.0));
+  /* El brillo engorda la línea: es lo que hace que la luz se sienta recorrer. */
+  float grosorPx = uGrosor * (1.0 + sp * 1.5);
+  float mitad    = grosorPx * 0.5;
+  float suave    = mix(1.30, 0.28, NITIDEZ);
+  float linea    = 1.0 - smoothstep(mitad, mitad + suave, dPx);
 
-  float intensidad = 0.055 + difuso * 0.34 + spec * 0.95;
+  /* El recorrido de color que eligió Carlos: acento-2 → acento → blanco. */
+  vec3 col = sp > 0.35
+    ? mix(uAcento, vec3(1.0), clamp((sp - 0.35) * 1.5, 0.0, 1.0))
+    : mix(uAcento2, uAcento, clamp(sp * 2.2, 0.0, 1.0));
 
-  vec3 col = uFondo;
-  col += linea * colLinea * intensidad;
+  float alfa = (PISO + sp * 0.80) * mix(1.0, 0.22, calma);
+  vec3 salida = uFondo + linea * col * alfa;
 
-  /* Halo tenue donde pega la luz: da profundidad sin dibujar ningún objeto. */
-  vec2 centroLuz = vec2(0.5 + uLuz.x * 0.32, 0.5 - uLuz.y * 0.32);
-  float halo = 1.0 - smoothstep(0.0, 0.85, distance(vUv, centroLuz));
-  col += uAcento * halo * halo * 0.055;
+  /* Viñeta: hunde los bordes, sube el centro. Sin esto se ve plano. */
+  float vig = smoothstep(1.05, 0.30, distance(uv, vec2(0.5, 0.55)) * 1.55);
+  salida *= mix(0.50, 1.0, vig);
 
-  /* Viñeta: hunde los bordes, sube el centro. */
-  float vig = smoothstep(1.10, 0.30, distance(vUv, vec2(0.5)) * 1.55);
-  col *= mix(0.42, 1.0, vig);
+  /* Grano: mata el bandeo en degradados oscuros sobre OLED. */
+  salida += (fract(sin(dot(gl_FragCoord.xy, vec2(127.1, 311.7))) * 43758.5) - 0.5) * 0.010;
 
-  /* Grano sutil: mata el bandeo en degradados oscuros sobre OLED. */
-  col += (hash(gl_FragCoord.xy + t) - 0.5) * 0.012;
-
-  gl_FragColor = vec4(col, 1.0);
+  gl_FragColor = vec4(salida, 1.0);
 }
 `;
