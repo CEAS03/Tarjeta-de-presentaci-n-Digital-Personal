@@ -5,5 +5,12 @@ dist
 .vercel
 *.local
 
-# Capturas de QA: artefactos regenerables, no historial
+# Capturas de QA: artefactos regenerables, no historial.
+# Se regeneran con `node scripts/mirar.mjs <url> <carpeta>`.
+# Son 51 MB de PNG a dpr 3: meterlos en el historial lo infla para siempre y no
+# aportan nada que no se pueda volver a generar en dos minutos.
 scripts/capturas-qa/
+scripts/capturas/
+
+# Artefactos de compilación
+tsconfig.tsbuildinfo
