@@ -38,10 +38,14 @@ export function BotonMarca({
       onClick={seleccionar}
       aria-label={`${nombre}: ${descripcion}`}
     >
-      <span className="boton-marca__punto" aria-hidden="true" />
-
       <span className="boton-marca__texto">
-        <strong className="boton-marca__nombre">{nombre}</strong>
+        {/* El punto va DENTRO del nombre, no como columna hermana. Con la fila
+            centrada, siendo hijo directo del flex se quedaba anclado al margen
+            izquierdo y se leía como una viñeta suelta, sin relación con nada. */}
+        <strong className="boton-marca__nombre">
+          <span className="boton-marca__punto" aria-hidden="true" />
+          {nombre}
+        </strong>
         <span className="boton-marca__descripcion">{descripcion}</span>
       </span>
 

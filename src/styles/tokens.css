@@ -50,19 +50,33 @@
 
      La primera capa, de 3 px, es la que hace el trabajo. Las capas anchas dan
      volumen pero NO legibilidad: un halo difuso se reparte demasiado y el
-     texto pequeño se pierde igual. Ese fue el primer intento fallido. */
+     texto pequeño se pierde igual. Ese fue el primer intento fallido.
+
+     REFORZADO el 2026-08-05 a petición de Carlos: «cuando está el efecto de la
+     luz, se complica leer el texto; quiero que atrás del texto se vea un poco
+     más oscuro el efecto». Se sube la opacidad de las capas medias y se añaden
+     dos paradas intermedias (6 y 18 px), que es donde estaba el hueco: había un
+     salto de 3 px a 12 px por el que se colaba el brillo del relieve.
+
+     Se refuerza el HALO y no se vuelve a atenuar el fondo. Una atenuación del
+     fondo con forma es justo el óvalo que Carlos rechazó; el halo sigue la
+     silueta de las letras y por eso no dibuja ninguna forma reconocible. */
   --halo:
     0 0 3px rgb(0 0 0 / 100%),
-    0 1px 3px rgb(0 0 0 / 98%),
-    0 2px 12px rgb(0 0 0 / 90%),
-    0 0 34px rgb(0 0 0 / 67%),
-    0 0 72px rgb(0 0 0 / 48%);
+    0 1px 3px rgb(0 0 0 / 100%),
+    0 0 6px rgb(0 0 0 / 96%),
+    0 2px 12px rgb(0 0 0 / 94%),
+    0 0 18px rgb(0 0 0 / 86%),
+    0 0 34px rgb(0 0 0 / 78%),
+    0 0 72px rgb(0 0 0 / 62%);
 
   /* Para texto pequeño, que es el más frágil: más cerrado, menos difuso. */
   --halo-cerrado:
     0 0 2px rgb(0 0 0 / 100%),
-    0 0 5px rgb(0 0 0 / 96%),
-    0 1px 10px rgb(0 0 0 / 80%);
+    0 0 5px rgb(0 0 0 / 100%),
+    0 0 9px rgb(0 0 0 / 92%),
+    0 1px 10px rgb(0 0 0 / 90%),
+    0 0 20px rgb(0 0 0 / 70%);
 
   /* Para elementos deliberadamente discretos, como la invitación. */
   --halo-tenue:
@@ -89,6 +103,20 @@
      delata que la superficie está viva. Subirlo convierte los botones en
      objetos brillantes, que es lo contrario de lo que se busca. */
   --luz-roce: 0.5;
+
+  /* ── El aro del retrato ────────────────────────────────────────────────
+     Añadido el 2026-08-05 a petición expresa de Carlos: «al rededor, tenga
+     como un círculo blanco o dorado, para que se vea más pro la foto».
+
+     OJO CON EL HISTORIAL: DIRECCION-DE-ARTE.md prohibía el aro, porque un aro
+     blanco brillante fue lo que Carlos rechazó del primer intento. Esta es una
+     instrucción suya POSTERIOR y manda sobre aquella. La diferencia con lo
+     rechazado es que aquel aro era grueso, brillante y rodeaba una tarjeta 3D;
+     este es un filo de 2 px sobre la foto, sin glow.
+
+     Cambiar entre blanco y dorado es cambiar esta línea. */
+  --aro-retrato: rgb(226 199 130 / 88%); /* dorado */
+  --aro-retrato-grosor: 2px;
 
   --sal: cubic-bezier(0.16, 1, 0.3, 1);
   --t-micro: 240ms;
