@@ -2,6 +2,42 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-05 (noche) — Capa visual rehecha desde cero
+
+- **Resultado:** el fondo está cerrado y aprobado por Carlos en su teléfono. La capa visual del
+  hub y de las dos ramas está reconstruida y pasa las 14 comprobaciones de aceptación. Falta que
+  Carlos la vea en su teléfono, elija tipografía y se retomen los pendientes de la lista de abajo.
+- **Qué se hizo:**
+  - **`git init` y commit de respaldo `42421ba`** antes de tocar nada. Punto de retorno intacto.
+  - **`DIRECCION-DE-ARTE.md`**, el documento que faltaba. Su ausencia es la causa del primer
+    intento fallido: `DISENO.md` definía concepto y comportamiento, pero nadie había decidido
+    **cómo se ve** la página. Ahora hay composición, escala real, tratamiento del retrato, ritmo,
+    movimiento y criterio de aceptación.
+  - **El fondo.** Se descubrió que el problema no eran los parámetros sino la geometría: el shader
+    rechazado dibujaba isolíneas de un ruido fbm 2D (manchas irregulares, «rayas densas y duras
+    sin sentido»), no líneas apiladas. Se reescribió con la geometría correcta y se portó a OGL.
+  - **Dos decisiones nuevas de Carlos**, ambas contra lo que decían los documentos:
+    **topográfica pura**, sin la seda que cruzaba líneas de lado a lado; y **giroscopio rápido**
+    (OMEGA 14, 12°, con autocalibrado), revirtiendo la «inercia larga» que se sentía como retraso.
+  - **La calma y el halo.** El fondo en su pico atravesaba el texto: era la causa real de «al
+    interactuar el fondo empeora». Se resuelve sin caja ni panel de vidrio.
+  - **Fuera todas las cajas**: la tarjeta 3D con aro blanco del retrato, el avatar circular de
+    esquina de las ramas, la tarjeta crema del logo de Blindafón, la píldora del dato de prueba,
+    las burbujas de redes y los tres botones-caja del dock.
+  - El hub estrena display propia (Instrument Serif); las ramas conservan Space Grotesk.
+  - `npm run dev:https` (puerto 5193) para poder probar el giroscopio desde iPhone, que exige
+    contexto seguro.
+- **Verificación real:**
+  - `npm run build` → código 0.
+  - `node scripts/aceptacion.mjs https://192.168.101.6:5193` → **14/14 en verde**: sin
+    desbordamiento horizontal ni errores de consola en hub, ALSAI y Blindafón a 390×844 y 430×932;
+    con `prefers-reduced-motion` dos capturas separadas 2 s son idénticas y el relieve sigue visible.
+  - Capturas reales con `scripts/mirar.mjs` en `scripts/capturas/antes/` y `scripts/capturas/despues/`.
+  - **Carlos probó el fondo y el giroscopio en su teléfono y los aprobó.** El resto de la capa
+    visual todavía no lo ha visto en el suyo.
+- **Pendiente:** ver la lista de traspaso en `PLAN-ACTIVO.md`.
+- **Plan archivado en:** todavía no.
+
 ## 2026-08-05 (noche) — CORRECCIÓN: el acabado visual NO está aprobado
 
 La entrada de abajo dice que la revisión visual «aprobó la tarjeta para entrega». **Es falsa** y se

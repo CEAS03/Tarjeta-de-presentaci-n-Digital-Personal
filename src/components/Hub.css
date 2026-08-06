@@ -185,7 +185,10 @@
   height: 6px;
   border-radius: 50%;
   background: var(--punto-marca);
-  box-shadow: 0 0 10px var(--punto-marca);
+  /* Una insinuación de luz, no un neón: 10 px a plena opacidad sobre un punto
+     de 6 px se leía a glow decorativo. Aquí el halo está justificado —toda la
+     pieza es una superficie iluminada— pero tiene que ser tenue. */
+  box-shadow: 0 0 7px color-mix(in srgb, var(--punto-marca) 55%, transparent);
   /* Alineado con el NOMBRE, no con el centro de la fila: si se centra, el
      punto queda flotando junto al resumen y pierde su referencia. */
   align-self: flex-start;
