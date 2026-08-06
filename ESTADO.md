@@ -2,6 +2,43 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — Activos definitivos, aro dorado, todo centrado y halo reforzado
+
+- **Resultado:** entran la foto en alta y el logo 3D de Blindafón, y con ellos tres peticiones de
+  Carlos que **revierten reglas que estaban escritas**. Sigue sin verlo en su teléfono.
+- **Los activos:**
+  - Carlos dejó los originales en `public/`. Se procesan con el script nuevo
+    `scripts/procesar-activos.mjs` (canvas del Chrome del sistema vía puppeteer; **cero
+    dependencias nuevas**, no hizo falta `sharp`):
+    - `carlos.webp` — 789 kB → **46 kB**, a 768×768. No se amplía: el original es 775×780, así que
+      pasar de ahí sería inventar píxeles.
+    - `carlos-vcard.jpg` — 400×400, 18 kB.
+    - `blindafon.webp` — 612 kB → **28 kB**, a 520×520, con la transparencia intacta.
+  - Los originales se movieron a `archivo/originales/`. En `public/` se desplegarían: 1.4 MB
+    servidos que nadie descarga.
+- **Lo que trajo el logo nuevo:** es **solo símbolo**, sin wordmark. El anterior sí lo llevaba
+  dentro de la imagen, así que al cambiarlo **el nombre «Blindafón» dejó de leerse en toda la
+  pantalla**. Se añade `logoIncluyeNombre` a `tarjeta.ts` —ALSAI `true`, Blindafón `false`— y la
+  rama escribe el nombre en tipografía cuando el archivo no lo trae. También se retiró el
+  `brightness(1.45) saturate(1.15)`, que era un parche para rescatar el azul mate del logo viejo y
+  sobre el 3D solo lo lavaba.
+- **Las tres peticiones que revierten reglas escritas** — anotadas en el código con la cita de
+  Carlos para que ningún agente las «corrija» de vuelta:
+  1. **Aro en el retrato.** `DIRECCION-DE-ARTE.md` lo prohibía. Carlos: «al rededor, tenga como un
+     círculo blanco o dorado, para que se vea más pro la foto». Puesto dorado, filo de 2 px sin
+     glow. Cambiar a blanco es una línea: `--aro-retrato`.
+  2. **Todo centrado**, hub y ramas. Revierte la alineación izquierda de `DIRECCION-DE-ARTE.md` §3
+     y §9 y de los antipatrones de `SISTEMA-DISENO.md`.
+  3. **Halo del texto reforzado.** El problema estaba localizado: había un salto de 3 px a 12 px
+     entre capas por el que se colaba el brillo del relieve. Dos paradas nuevas (6 y 18 px) y más
+     opacidad. **Se reforzó el halo y NO se volvió a atenuar el fondo**: una atenuación con forma
+     es el óvalo que ya se eliminó.
+  - Además, mucha menos penumbra alrededor de la cara y el brillo de 0.78 a 0.9.
+- **Verificación real:** `npm run build` código 0 · `node scripts/aceptacion.mjs` **14/14 en
+  verde** · capturas en `scripts/capturas/activos-nuevos/`.
+- **Pendiente:** que Carlos lo abra en su teléfono, elegir aro dorado o blanco, las hojas
+  inferiores, y borrar los laboratorios de `public/`.
+
 ## 2026-08-05 — Syne elegida, y el proyecto respaldado en GitHub
 
 - **Resultado:** la tipografía del hub queda **cerrada en Syne**, elegida por Carlos entre las tres

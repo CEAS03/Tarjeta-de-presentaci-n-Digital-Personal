@@ -23,9 +23,9 @@ externas de las marcas solo se consultan si una tarea pide actualizar sus datos 
 
 | | |
 |---|---|
-| Producción | `https://carlos.agencia-alsai.com` — **pendiente de crear** |
-| Vercel | proyecto `carlos-alvarez-tarjeta` — **pendiente de crear** |
-| Repo GitHub | ninguno todavía |
+| En línea | `https://tarjeta-de-presentacion-personal.vercel.app` — **viva desde el 2026-08-06** |
+| Repo GitHub | `github.com/CEAS03/Tarjeta-de-presentaci-n-Digital-Personal`, rama `master` |
+| Dominio final | `https://carlos.agencia-alsai.com` — **pendiente**: falta el registro A en Namecheap |
 
 ## Stack y comandos
 
@@ -55,10 +55,12 @@ Servidor de desarrollo en el puerto **5190** con `host: true` (para probar desde
 | `src/components/Rama.tsx` | plantilla única de las dos ramas |
 | `src/lib/vcard.ts` | `.vcf` con foto embebida |
 | `src/webgl/` | fondo reactivo, carga diferida |
-| `public/carlos.webp` | retrato (640×640, ≤ 60 KB) |
-| `public/carlos-vcard.jpg` | retrato para el `.vcf` (400×400, ≤ 40 KB) |
-| `public/alsai-blanco.webp` | logo de ALSAI procesado para fondo oscuro |
-| `public/blindafon.webp` | logo de Blindafón procesado |
+| `public/carlos.webp` | retrato (768×768, 46 KB) |
+| `public/carlos-vcard.jpg` | retrato para el `.vcf` (400×400, 18 KB) |
+| `public/alsai-blanco.webp` | logo de ALSAI, lockup con el nombre dentro |
+| `public/blindafon.webp` | logo de Blindafón: cohete-teléfono 3D, **solo símbolo** |
+| `archivo/originales/` | los originales que entrega Carlos. **Fuera de `public/`** a propósito: ahí se desplegarían, y son 1.4 MB que nadie descarga |
+| `scripts/procesar-activos.mjs` | convierte los originales a los activos finales |
 
 ## `src/config/tarjeta.ts` — la única fuente de datos
 
@@ -136,8 +138,16 @@ La fotografía ya está copiada a `public/`; no hace falta volver ahí.
 
 ## Despliegue
 
-`vercel deploy --prod` desde esta carpeta. **No hay integración de Git**: subir a GitHub no
-despliega nada. El DNS está en Namecheap, no en Vercel — el registro A lo crea Carlos.
+**CAMBIÓ el 2026-08-06.** Carlos conectó el repositorio a Vercel, así que **ahora un `git push` a
+`master` despliega**. Lo que decía esta sección —«no hay integración de Git, subir a GitHub no
+despliega nada»— ya es falso.
+
+| | |
+|---|---|
+| Repo | `github.com/CEAS03/Tarjeta-de-presentaci-n-Digital-Personal` (rama `master`) |
+| Vercel | `tarjeta-de-presentacion-personal.vercel.app` |
+
+Un `vercel deploy --prod` manual sigue funcionando, pero ya no hace falta. El DNS está en Namecheap, no en Vercel — el registro A lo crea Carlos.
 El apex, `www` y `conecta` de `agencia-alsai.com` son de otros proyectos: **no tocarlos**.
 
 ## Pendientes externos y evolución

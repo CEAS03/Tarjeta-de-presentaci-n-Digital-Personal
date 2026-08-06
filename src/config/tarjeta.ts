@@ -19,6 +19,19 @@ export type DatosMarca = {
   nombre: string;
   /** Ruta al logo. null = se usa el nombre en tipografía. */
   logoSrc: string | null;
+  /**
+   * ¿El archivo del logo ya trae escrito el nombre de la marca?
+   *
+   * ALSAI sí: su logo es un lockup con «ALSAI» y «Agencia» dentro de la imagen.
+   * Blindafón NO desde el activo nuevo del 2026-08-05: es un cohete-teléfono en
+   * 3D, solo símbolo. El logo anterior sí llevaba el wordmark, y al cambiarlo el
+   * nombre de la marca dejó de leerse en toda la pantalla.
+   *
+   * Cuando es `false`, la rama escribe el nombre en tipografía debajo del
+   * símbolo. No es decoración: sin eso, quien abre la tarjeta ve un cohete y no
+   * sabe cómo se llama el negocio.
+   */
+  logoIncluyeNombre: boolean;
   resumen: string;
   rol: string;
   descripcion: string;
@@ -72,6 +85,7 @@ export const tarjeta = {
     alsai: {
       nombre: 'Agencia ALSAI',
       logoSrc: '/alsai-blanco.webp',
+      logoIncluyeNombre: true,
       resumen: 'Inteligencia artificial y marketing para empresas',
       rol: 'Fundador',
       descripcion:
@@ -92,6 +106,7 @@ export const tarjeta = {
     blindafon: {
       nombre: 'Blindafón',
       logoSrc: '/blindafon.webp',
+      logoIncluyeNombre: false,
       resumen: 'Blindaje nanotecnológico para pantallas',
       rol: 'Fundador',
       descripcion:

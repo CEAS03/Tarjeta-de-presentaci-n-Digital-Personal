@@ -129,12 +129,14 @@
    del viaje del retrato en Transicion.tsx — la razón de que la transición de
    entrada estuviera rota. */
 
-/* EL LOGO VA CENTRADO. DIRECCION-DE-ARTE.md §9 decía «alineado a la izquierda,
-   nunca centrado»; la REVISIÓN 2 lo cambió y manda sobre §9.
-   Se centra el bloque de identidad ENTERO —logo y línea de rol— para que se lea
-   como una cabecera deliberada y no como un logo descolocado sobre texto
-   alineado a la izquierda. De la descripción hacia abajo todo sigue a la
-   izquierda: la regla de «ni un párrafo centrado» no se toca. */
+/* TODO CENTRADO EN LA RAMA TAMBIÉN (2026-08-05/06, Carlos: «todo quiero que se
+   vea centrado, y de manera armónica»).
+
+   Esto pasó por dos etapas: la REVISIÓN 2 solo centró el logo, y el resto seguía
+   a la izquierda; al centrar el hub entero, la rama se quedaba descolgada. Ahora
+   va todo, y las reglas de alineación izquierda de DIRECCION-DE-ARTE.md §3 y §9
+   y de los antipatrones de SISTEMA-DISENO.md quedan revertidas por instrucción
+   expresa de Carlos. No es un despiste: no lo «arregles» de vuelta. */
 .rama__identidad {
   display: flex;
   flex-direction: column;
@@ -154,36 +156,36 @@
   filter: drop-shadow(0 0 1.5rem var(--glow));
 }
 
-/* ACTIVO NUEVO, 2026-08-05: Carlos sustituyó `public/blindafon.webp` por el
-   cohete-teléfono azul marino con llama naranja.
+/* ACTIVO DEFINITIVO, 2026-08-06: Carlos entregó el cohete-teléfono 3D
+   (`Logo Blindafon 3D telefono.png`, con transparencia real). Sustituye al logo
+   plano anterior, que era azul marino mate CON el wordmark dentro.
 
-   Se retira el `filter: brightness(0) invert(1)` que lo aplastaba a blanco
-   monocromo. Ese filtro existía porque el logo anterior era azul marino plano y
-   sobre fondo oscuro desaparecía; el nuevo trae naranja luminoso propio, así que
-   forzarlo a blanco solo mataba lo único que lo hacía visible.
-   PERO a color tal cual se perdía: la llama naranja leía, y el cuerpo azul
-   marino y el wordmark casi no. Se le sube el brillo y algo de saturación, que
-   es lo mínimo para que el azul se despegue del fondo sin inventarle un color
-   que el logo no tiene. Es la opción B de
-   `scripts/capturas/logo-blindafon/` — PROVISIONAL hasta que Carlos elija:
-     A  color tal cual              → honesto, pero el wordmark no se lee
-     B  color realzado  ← puesta    → el azul se separa y la llama queda dorada
-     C  color con luz detrás        → legible, pero el halo vuelve a leerse a caja
-     D  blanco monocromo (anterior) → legible y muerto: sacrifica el naranja
-   Cambiar de opción es cambiar esta única línea. */
+   Se retira también el `brightness(1.45) saturate(1.15)` que se había puesto
+   como parche: ese realce existía para rescatar el azul mate del logo viejo, que
+   sobre fondo oscuro se perdía. El 3D trae luces propias y naranja luminoso, y
+   forzarle brillo solo lo lavaba. Va tal cual, con su glow de marca.
+
+   CONSECUENCIA: este logo es SOLO SÍMBOLO, sin wordmark. El nombre «Blindafón»
+   se escribe ahora en tipografía debajo. Ver `logoIncluyeNombre` en tarjeta.ts. */
 .rama[data-marca-rama='blindafon'] .rama__logo {
-  width: min(11rem, 48vw);
-  height: 5.5rem;
+  /* Más grande que el lockup de ALSAI, y a propósito: aquel ya incluye dos
+     líneas de texto y llena su caja; este es un símbolo suelto y a 5.5rem se
+     leía a icono de aplicación perdido en la pantalla. */
+  width: min(13rem, 54vw);
+  height: clamp(6rem, 15svh, 8.5rem);
   border: 0;
   border-radius: 0;
   padding: 0;
   background: none;
   box-shadow: none;
-  filter: brightness(1.45) saturate(1.15) drop-shadow(0 0 1.5rem var(--glow));
+  filter: drop-shadow(0 0 1.5rem var(--glow));
 }
 
 .rama__wordmark {
-  font-size: clamp(2rem, 9vw, 3rem);
+  margin: 0.55rem 0 0;
+  font-family: var(--display-marca);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 8vw, 2.5rem);
   line-height: 1;
   letter-spacing: -0.03em;
   text-wrap: balance;
@@ -215,15 +217,17 @@
   max-width: 33rem;
   margin: 0;
   color: var(--bone);
+  margin-inline: auto;
   font-size: clamp(1.0625rem, 4.2vw, 1.25rem);
   line-height: 1.55;
-  text-align: left;
+  text-align: center;
   text-wrap: pretty;
   text-shadow: 0 0.125rem 0.75rem var(--fondo), 0 0 2rem var(--fondo);
 }
 
 .rama__prueba {
   width: fit-content;
+  margin-inline: auto;
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
@@ -281,7 +285,7 @@
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.01em;
-  text-align: left;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
   transition:
@@ -351,12 +355,11 @@
 .rama__enlaces {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: var(--e-xs);
   /* Sin margen propio: el reparto lo hace ahora el `space-between` del
      contenedor. Un `margin-top` fijo aquí se sumaba al sobrante y era parte de
      lo que abría el hueco. */
-  margin-left: -0.6rem; /* compensa el área táctil para alinear el icono al margen */
 }
 
 /* Sin círculo ni fondo: eran botones-burbuja grises. Solo el icono, con área

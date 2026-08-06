@@ -21,8 +21,8 @@ export function Retrato({ src, nombre }: PropiedadesRetrato) {
         className="retrato__imagen"
         src={src}
         alt={`Retrato de ${nombre}`}
-        width="640"
-        height="640"
+        width="768"
+        height="768"
         loading="eager"
         {...{ fetchpriority: 'high' }}
         decoding="async"
