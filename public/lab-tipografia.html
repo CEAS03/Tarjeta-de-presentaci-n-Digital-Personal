@@ -8,16 +8,21 @@
 <!-- Las tres candidatas están self-hosted en el proyecto (@fontsource), sin CDN.
      Aquí se cargan desde node_modules a través del servidor de Vite, que es lo
      que permite compararlas sin tocar el código de la aplicación. -->
-<link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/instrument-serif/400.css">
+<link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/newsreader/500.css">
 <link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/bricolage-grotesque/600.css">
-<link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/fraunces/400.css">
+<link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/syne/700.css">
+<link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/instrument-serif/400.css">
 <link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/space-grotesk/700.css">
 <link rel="stylesheet" href="/@fs/C:/Users/CEAS0/Documents/Claude Code VSC/Agencia ALSAI/Landing y Sitio web -ALSAI/Tarjeta Digital PERSONAL/node_modules/@fontsource/inter/400.css">
 </head>
 <body>
 <!--
 ═══════════════════════════════════════════════════════════════════════════════
-  LA TIPOGRAFÍA DEL HUB — tres candidatas, para que Carlos elija.
+  LA TIPOGRAFÍA DEL HUB — tres candidatas NUEVAS, para que Carlos elija.
+
+  Instrument Serif quedó rechazada. Fraunces, Inter, Roboto, Geist y Plus Jakarta
+  Sans están excluidas por Carlos. Las tres nuevas son Newsreader, Bricolage
+  Grotesque y Syne, y van a propósito en tres direcciones distintas.
 
   Por qué el hub no lleva Space Grotesk: es la display de las DOS empresas.
   Usarla también en la entrada borra la distinción y el hub parecería ya de
@@ -30,13 +35,14 @@
 -->
 
 <div id="barra">
-  <button class="op activo" data-f="serif">Instrument Serif</button>
+  <button class="op activo" data-f="newsreader">Newsreader</button>
   <button class="op" data-f="grotesca">Bricolage</button>
-  <button class="op" data-f="fraunces">Fraunces</button>
-  <button class="op" data-f="space">Space Grotesk</button>
+  <button class="op" data-f="syne">Syne</button>
+  <button class="op" data-f="serif">Instrument (rechazada)</button>
+  <button class="op" data-f="space">Space Grotesk (no)</button>
 </div>
 
-<main id="muestra" data-fuente="serif">
+<main id="muestra" data-fuente="newsreader">
   <h1>Carlos Álvarez</h1>
   <p class="lugar">Querétaro, México</p>
   <p class="tesis">Soy un emprendedor que combina tecnología, creatividad e innovación
@@ -78,9 +84,10 @@
 
   /* Cada candidata con SU peso correcto: una serif de contraste alto pide 400,
      una grotesca pide 600. Compararlas al mismo peso las falsearía. */
-  [data-fuente="serif"]    h1,[data-fuente="serif"]    .pregunta,[data-fuente="serif"]    .txt b{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+  [data-fuente="newsreader"] h1,[data-fuente="newsreader"] .pregunta,[data-fuente="newsreader"] .txt b{font-family:'Newsreader',Georgia,serif;font-weight:500}
   [data-fuente="grotesca"] h1,[data-fuente="grotesca"] .pregunta,[data-fuente="grotesca"] .txt b{font-family:'Bricolage Grotesque',sans-serif;font-weight:600}
-  [data-fuente="fraunces"] h1,[data-fuente="fraunces"] .pregunta,[data-fuente="fraunces"] .txt b{font-family:'Fraunces',Georgia,serif;font-weight:400}
+  [data-fuente="syne"]     h1,[data-fuente="syne"]     .pregunta,[data-fuente="syne"]     .txt b{font-family:'Syne',sans-serif;font-weight:700}
+  [data-fuente="serif"]    h1,[data-fuente="serif"]    .pregunta,[data-fuente="serif"]    .txt b{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
   [data-fuente="space"]    h1,[data-fuente="space"]    .pregunta,[data-fuente="space"]    .txt b{font-family:'Space Grotesk',sans-serif;font-weight:700}
 
   h1{margin:0;font-size:clamp(3rem,13.5vw,4.25rem);line-height:.94;
@@ -113,14 +120,15 @@
 <script>
 (function(){
   var NOTAS = {
-    serif: 'Instrument Serif — mi recomendación. Contra dos marcas tecnológicas, una serif dice «persona», no «producto». Humaniza el hub sin dejar de verse cara.',
-    grotesca: 'Bricolage Grotesque — moderna y con carácter, sin irse a lo editorial. La apuesta intermedia si la serif te resulta demasiado clásica.',
-    fraunces: 'Fraunces — la más personal y cálida de las tres. Riesgo: puede tirar a boutique y restarle seriedad al lado ALSAI.',
-    space: 'Space Grotesk — es la display de ALSAI Y de Blindafón. Aquí solo como referencia: si el hub la usa, la entrada parece ya de una de las dos marcas y se pierde la bifurcación.'
+    newsreader: 'Newsreader — mi recomendación. Sigue siendo serif, que es lo que dice «persona» frente a dos marcas tecnológicas, pero de contraste BAJO: no tiene los remates finísimos ni el aire de revista de moda de Instrument Serif, que es probablemente lo que no te convenció. Se lee cercana y seria a la vez, y aguanta bien en pantalla pequeña.',
+    grotesca: 'Bricolage Grotesque — sin serif, moderna, con quiebres deliberados en algunas letras. Si la serif directamente no te gusta para ti, esta es el camino: tiene carácter propio y no se confunde con Space Grotesk. La apuesta intermedia.',
+    syne: 'Syne — la más rotunda y contemporánea. Formas anchas, muy de estudio de diseño. Es la que más «avanzada» se ve, y también la que más se aleja de lo editorial. Riesgo: pesa mucho visualmente y puede comerse al resto de la pantalla.',
+    serif: 'Instrument Serif — la que ya rechazaste. Se deja aquí solo para comparar contra ella y ver si las nuevas van en la dirección correcta.',
+    space: 'Space Grotesk — es la display de ALSAI Y de Blindafón. Aquí solo como referencia de lo que se está evitando: si el hub la usa, la entrada parece ya de una de las dos marcas y se pierde la bifurcación.'
   };
   var muestra = document.getElementById('muestra');
   var nota = document.getElementById('nota');
-  nota.textContent = NOTAS.serif;
+  nota.textContent = NOTAS.newsreader;
 
   Array.prototype.forEach.call(document.querySelectorAll('.op'), function(b){
     b.addEventListener('click', function(){
