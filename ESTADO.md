@@ -2,6 +2,58 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — Los siete cambios: inversión visible, circuito por giroscopio, botón de sitio
+
+- **Dominio:** `https://carlos.agencia-alsai.com/` **vivo**. Carlos creó el registro A.
+- **Qué se hizo, y el porqué de los dos que estaban mal:**
+
+**1. El fondo del texto era demasiado brusco.** El culpable estaba localizado:
+`brightness(0.42)` en el `backdrop-filter` de `.escrito`. Multiplicar por 0.42 aplasta las líneas
+del relieve casi a negro, y el resultado se leía a mancha lisa. Sube a **0.72**, la opacidad baja
+de 26 a **18 %**, el desenfoque sube a 10 px. Y los cantos se difuminan con un `box-shadow` ancho
+del mismo negro: un `background` es color liso y su borde es duro por definición; la sombra
+extiende la oscuridad hacia fuera perdiendo fuerza, así que ya no hay salto, hay caída.
+**Contraste tras el cambio: 19.4:1**, medido con `verificar-texto.mjs`.
+
+**2. La inversión de los botones no se veía, y ya se sabe por qué.** El `invert(1)` estaba puesto,
+pero le seguía un `brightness(0.22)` añadido para que el texto blanco no se perdiera sobre el campo
+invertido. Ese era el error: **`brightness` multiplica, así que comprime las diferencias**. Con
+0.22 el campo caía a 53/255 y las líneas a 8 — 45 puntos de separación, invisibles. La corrección
+es no filtrar el brillo sino **componer una capa oscura encima** del backdrop ya invertido: el alfa
+compone en vez de multiplicar y conserva la estructura. Campo ~92, líneas ~13: el doble de
+separación, y el texto conserva 6.7:1.
+
+**3. El ritmo del circuito lo da ahora el giroscopio.** Iba a 4.2 s con una curva que acelera y
+frena, y los dos botones desfasados media vuelta: cuando uno corría el otro estaba en su tramo
+lento y parecía parado. Dos relojes independientes nunca se iban a ver coordinados. Ahora el ángulo
+sale de **`--luz-angulo`**, que `luzCss.ts` publica desde el mismo bucle del relieve: el punto
+encendido apunta hacia donde viene la luz del fondo. Desaparece la excepción a «solo transform y
+opacity», porque ya no hay keyframes.
+
+**4. El naranja de Blindafon.** Se leía a rojo ladrillo porque el tinte de marca iba al 22 % sobre
+el campo invertido claro. Baja a 14 % y va sobre la capa oscura.
+
+**5. El hueco entre la bio y la pregunta.** No se repartió el vacío: se llenó. El contenido era
+demasiado corto para la pantalla y todo el sobrante caía en ese único corte. Retrato de 34 a 42vw,
+nombre a 10.5svh, tesis y pregunta más grandes.
+
+**6. El encuadre de la foto.** Zoom de 1.3 a 1.12 para que se vea el remate del pelo, y el origen
+del 34 al 46 % para que la cabeza quede centrada en el círculo.
+
+**7. Botón de sitio web en las dos ramas.** Con su línea de invitación, en cápsula, con la misma
+ventana invertida y el mismo borde de circuito que los botones del hub. **El enlace al sitio SALE
+de la fila de redes**: ahí era un icono de globo con el mismo peso que Instagram, y duplicarlo le
+quitaba fuerza al botón. Consecuencia: a ALSAI le queda un solo icono en esa fila.
+
+- **Dos regresiones propias, detectadas en captura y corregidas:** al envolver el texto en
+  `.escrito`, el selector `.rama__rol span` empezó a alcanzar al envoltorio y pintaba de naranja la
+  línea entera del rol; y el punto del dato de prueba desapareció porque dentro de un elemento en
+  línea un `span` sin `display` ignora `width` y `height`.
+- **PENDIENTE DE APROBACIÓN:** el copy de la invitación al sitio («¿Quieres conocer la agencia a
+  fondo?» / «¿Quieres saber más del blindaje?») lo escribió Claude. Está en `tarjeta.ts`.
+- **Verificación:** `npm run build` código 0 · `aceptacion.mjs` todo en verde ·
+  `verificar-texto.mjs` todo en verde · capturas en `scripts/capturas/tanda-final/`.
+
 ## 2026-08-06 — Borde de circuito, colores reales de la foto, y el texto MEDIDO
 
 - **Lo importante de esta entrada:** Carlos pidió que antes de entregar se

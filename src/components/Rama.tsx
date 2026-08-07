@@ -60,10 +60,11 @@ export function Rama({ marca, onVolver, accionCompartir }: PropiedadesRama) {
   const datos = tarjeta.marcas[marca];
   const seccion = useRef<HTMLElement>(null);
   const idTitulo = `rama-titulo-${marca}`;
-  const enlaces = [
-    { nombre: 'Sitio web', url: datos.sitio },
-    ...datos.redes,
-  ].filter((enlace) => enlace.url);
+  /* El sitio web SALE de esta fila. Antes iba aquí como un icono de globo más,
+     entre las redes. Desde el 2026-08-06 tiene su propio botón, con su
+     invitación: dejarlo también aquí lo duplicaba y le quitaba peso justo al
+     enlace que Carlos quiere que la gente encuentre. */
+  const enlaces = datos.redes.filter((enlace) => enlace.url);
 
   useEffect(() => {
     seccion.current?.focus({ preventScroll: true });
@@ -149,6 +150,31 @@ export function Rama({ marca, onVolver, accionCompartir }: PropiedadesRama) {
         </div>
 
         <HojaAgendar marca={marca} />
+
+        {datos.sitio && (
+          <div className="rama__sitio">
+            <p className="rama__sitio-invitacion">
+              <span className="escrito">{datos.invitacionSitio}</span>
+            </p>
+
+            <a
+              className="rama__sitio-boton"
+              href={datos.sitio}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                registrarEvento('link_click', marca, { destino: 'Sitio web' })
+              }
+            >
+              <span className="rama__sitio-texto">{datos.textoSitio}</span>
+              <span className="rama__sitio-flecha" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M7 17 17 7M9 7h8v8" />
+                </svg>
+              </span>
+            </a>
+          </div>
+        )}
 
         {enlaces.length > 0 && (
           <nav

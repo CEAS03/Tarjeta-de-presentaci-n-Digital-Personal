@@ -235,11 +235,22 @@ h3 {
   display: inline;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  background: rgb(0 0 0 / 40%);
+  background: rgb(0 0 0 / 34%);
   /* El aire lateral evita que la primera y la última letra queden pegadas al
      canto del fondo. Va en `em` para que escale con cada tamaño de texto. */
-  padding: 0.16em 0.5em;
-  border-radius: 0.35em;
+  padding: 0.18em 0.6em;
+  /* Radio generoso: con el canto redondeado y la sombra difusa de abajo, el
+     renglón deja de leerse a rectángulo. */
+  border-radius: 0.9em;
+  /* EL DIFUMINADO DEL BORDE. Carlos: «difumina todos esos bordes negros que
+     están alrededor del texto». Un `background` es un color liso y su canto es
+     duro por definición; lo que lo suaviza es esta sombra, del mismo negro, muy
+     abierta y sin desplazamiento: extiende la oscuridad hacia fuera perdiendo
+     fuerza, así que entre el fondo del renglón y el relieve ya no hay un salto,
+     hay una caída. */
+  box-shadow:
+    0 0 6px 3px rgb(0 0 0 / 22%),
+    0 0 16px 8px rgb(0 0 0 / 14%);
   /* Compensa el alto extra que mete el padding: sin esto, las líneas de un
      párrafo se separarían más de lo que dice su `line-height`. */
   margin-inline: -0.06em;
@@ -250,12 +261,19 @@ h3 {
    las letras, que es lo que producía la confusión entre línea y trazo. */
 @supports (backdrop-filter: blur(2px)) {
   .escrito {
-    /* Más difuminado y menos opaco que la versión de respaldo: con 6 px de
-       desenfoque el relieve se sigue viendo bajo el texto pero pierde el borde
-       duro, que era lo que confundía línea blanca con trazo blanco. Así el
-       fondo por renglón se lee a penumbra, no a subtítulo de vídeo. */
-    background: rgb(0 0 0 / 26%);
-    backdrop-filter: blur(6px) brightness(0.42) saturate(0.9);
-    -webkit-backdrop-filter: blur(6px) brightness(0.42) saturate(0.9);
+    /* SEGUNDA CALIBRACIÓN, 2026-08-06. Carlos: «se ve muy brusco y no deja
+       percibir el fondo, nada más se ve el fondo negro y ya».
+
+       El culpable era `brightness(0.42)`: multiplicar por 0.42 aplasta las
+       líneas del relieve casi a negro y el resultado se lee a mancha lisa. Sube
+       a 0.72 —el relieve se sigue viendo, apagado— y la opacidad baja de 26 a
+       18 %. El desenfoque sube a 10 px: quita el canto duro de las líneas sin
+       borrarlas, que es lo que evita confundir línea blanca con trazo blanco.
+
+       Mismo criterio que Carlos señaló en los botones: poca opacidad, el fondo
+       se sigue percibiendo, y aun así el texto sobresale. */
+    background: rgb(0 0 0 / 18%);
+    backdrop-filter: blur(10px) brightness(0.72) saturate(0.85);
+    -webkit-backdrop-filter: blur(10px) brightness(0.72) saturate(0.85);
   }
 }

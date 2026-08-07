@@ -51,4 +51,19 @@ export function publicarLuz(x: number, y: number): void {
      El eje Y va invertido: en el shader `v` crece hacia abajo, en CSS no. */
   raiz.setProperty('--luz-px', `${(50 + x * 42).toFixed(1)}%`);
   raiz.setProperty('--luz-py', `${(50 - y * 42).toFixed(1)}%`);
+
+  /* EL ÁNGULO de donde viene la luz, en grados y ya listo para un
+     `conic-gradient`. Lo consume el borde de circuito de los botones: así el
+     punto encendido del contorno APUNTA hacia la misma luz que barre el
+     relieve, en vez de girar contra un reloj propio.
+
+     Es lo mismo que se hizo con `--luz-px`: una sola luz atravesando la pieza
+     entera. Un botón que late a su ritmo se lee a widget; uno que responde a
+     cómo sostienes el teléfono se lee a superficie viva.
+
+     `atan2` devuelve radianes desde el eje X, con Y hacia arriba. Se pasa a
+     grados y se rota 90° porque `conic-gradient` empieza a las 12 en punto y
+     avanza en sentido horario, no a las 3 y en antihorario. */
+  const grados = (Math.atan2(-y, x) * 180) / Math.PI + 90;
+  raiz.setProperty('--luz-angulo', `${grados.toFixed(1)}deg`);
 }

@@ -45,6 +45,16 @@ export type DatosMarca = {
   redes: Red[];
   /** Endpoint de agendado. Vacío = el botón abre WhatsApp con `mensajeAgenda`. */
   agendaUrl: string;
+  /**
+   * La invitación a visitar el sitio, y el texto de su botón.
+   *
+   * PENDIENTE DE QUE CARLOS APRUEBE EL COPY. Lo escribió Claude el 2026-08-06
+   * a partir de su indicación: «que diga algo como si quieres conocer un poco
+   * más del negocio, pícale aquí abajo». Es copy, no un dato de negocio: no se
+   * inventa ningún teléfono, correo ni métrica.
+   */
+  invitacionSitio: string;
+  textoSitio: string;
   textoAgenda: string;
   descripcionAgenda: string;
   mensajeAgenda: string;
@@ -99,6 +109,8 @@ export const tarjeta = {
       sitio: 'https://www.agencia-alsai.com/',
       redes: [{ nombre: 'Instagram', url: 'https://www.instagram.com/agencia.alsai/' }],
       agendaUrl: '',
+      invitacionSitio: '¿Quieres conocer la agencia a fondo?',
+      textoSitio: 'Ver el sitio de ALSAI',
       textoAgenda: 'Agendar una llamada',
       descripcionAgenda: 'Coordinemos la llamada por WhatsApp con un mensaje preparado.',
       mensajeAgenda: 'Hola Carlos, quiero agendar una llamada sobre ALSAI.',
@@ -125,6 +137,8 @@ export const tarjeta = {
         { nombre: 'Facebook', url: 'https://www.facebook.com/share/18qeNWZzGr/' },
       ],
       agendaUrl: '',
+      invitacionSitio: '¿Quieres saber más del blindaje?',
+      textoSitio: 'Ver el sitio de Blindafon',
       textoAgenda: 'Agendar mi blindaje',
       descripcionAgenda: 'Coordinemos tu blindaje por WhatsApp con un mensaje preparado.',
       mensajeAgenda: 'Hola, quiero agendar mi blindaje a domicilio.',

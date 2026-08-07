@@ -203,7 +203,11 @@
   text-transform: uppercase;
 }
 
-.rama__rol span {
+/* SOLO EL PUNTO SEPARADOR, no cualquier span descendiente.
+   Al envolver el texto en `.escrito` para darle fondo, este selector empezó a
+   alcanzar TAMBIÉN a ese envoltorio y pintaba de naranja la línea entera del
+   rol. El `>` lo ata al hijo directo del envoltorio, que es el «·». */
+.rama__rol .escrito > span {
   margin-inline: 0.25rem;
   color: var(--acento);
 }
@@ -254,7 +258,15 @@
   text-shadow: var(--halo-cerrado);
 }
 
+/* `inline-block` obligatorio desde que el dato va dentro de `.escrito`. Antes
+   era un ítem de un `inline-flex` y por eso tomaba tamaño; dentro de un
+   elemento en línea, un `span` sin `display` ignora `width` y `height` y el
+   punto desaparecía. */
 .rama__prueba-marca {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+  margin-bottom: 0.1rem;
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 50%;
@@ -828,5 +840,167 @@
     from {
       opacity: 0;
     }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EL BOTÓN DEL SITIO WEB — 2026-08-06.
+
+   Carlos: «que diga un texto abajo de agendar llamada, como si quieres conocer
+   un poco más del negocio, pícale aquí abajo. Y no quiero que salga como el
+   ícono del mundo, sino un botón especial que sea padre, dinámico».
+
+   Antes el sitio era un icono de globo más dentro de la fila de redes, con el
+   mismo peso que Instagram. Ahora sale de ahí y tiene su propio bloque: una
+   línea que hace la pregunta y un botón que la responde.
+
+   Lleva el mismo lenguaje que los botones de marca del hub —ventana al relieve
+   invertido y borde de circuito que sigue al giroscopio— para que la pieza se
+   lea como un sistema y no como pantallas sueltas.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.rama__sitio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.rama__sitio-invitacion {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: rgb(255 255 255 / 88%);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.rama__sitio-boton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--display-marca);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: transform var(--t-micro) var(--sal);
+}
+
+/* La ventana al relieve invertido, igual que en los botones del hub. */
+.rama__sitio-boton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  backdrop-filter: invert(1) saturate(0.4);
+  -webkit-backdrop-filter: invert(1) saturate(0.4);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--acento) 16%, transparent),
+      transparent 72%
+    ),
+    rgb(0 0 0 / 60%);
+  transition: opacity var(--t-micro) var(--sal);
+}
+
+/* El borde de circuito, movido por el giroscopio. Aquí el recorrido es una
+   cápsula, así que el punto encendido gira más parejo que en el rectángulo de
+   los botones de marca: es el mismo recurso, con otro ritmo por su forma. */
+.rama__sitio-boton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from var(--luz-angulo) at 50% 50%,
+      transparent 0deg,
+      color-mix(in srgb, var(--acento) 88%, white) 12deg,
+      var(--acento) 22deg,
+      transparent 40deg,
+      transparent 172deg,
+      var(--acento) 190deg,
+      color-mix(in srgb, var(--acento) 88%, white) 200deg,
+      transparent 218deg,
+      transparent 360deg
+    ),
+    color-mix(in srgb, var(--acento) 34%, transparent);
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+.rama__sitio-texto,
+.rama__sitio-flecha {
+  position: relative;
+  z-index: 2;
+}
+
+/* Flecha de «se abre fuera», no de «avanzas dentro»: este enlace saca al
+   visitante de la tarjeta y conviene que se note antes de tocarlo. */
+.rama__sitio-flecha {
+  display: flex;
+}
+
+.rama__sitio-flecha svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--t-micro) var(--sal);
+}
+
+.rama__sitio-boton:active {
+  transform: scale(0.97);
+}
+
+.rama__sitio-boton:active .rama__sitio-flecha svg {
+  transform: translate(2px, -2px);
+}
+
+.rama__sitio-boton:active::before {
+  opacity: 0.6;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rama__sitio-boton:hover {
+    transform: translateY(-0.125rem);
+  }
+
+  .rama__sitio-boton:hover .rama__sitio-flecha svg {
+    transform: translate(2px, -2px);
+  }
+}
+
+/* Entra con el resto de la rama, después de agendar. */
+.rama__sitio {
+  animation: rama-entra var(--t-medio) var(--sal) 150ms backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rama__sitio {
+    animation: rama-aparece 150ms linear backwards;
+    animation-delay: 0ms;
   }
 }

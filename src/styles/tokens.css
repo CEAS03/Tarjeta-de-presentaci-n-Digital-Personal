@@ -114,6 +114,7 @@
   --luz-y: 0;
   --luz-px: 50%;
   --luz-py: 50%;
+  --luz-angulo: 0deg;
 
   /* Cuánto se deja notar la luz sobre un elemento tocable. Es deliberadamente
      bajo: la presencia la dan el borde y la tipografía, y esto es el roce que
