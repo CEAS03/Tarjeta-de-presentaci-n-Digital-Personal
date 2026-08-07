@@ -38,7 +38,7 @@ Servidor de desarrollo en el puerto **5190** con `host: true` (para probar desde
 | `npm run dev:https` | HTTPS en **5193**. Obligatorio para probar el giroscopio en iPhone |
 | `npm run build` | `tsc -b && vite build` |
 | `npm run preview` | sirve `dist/` en 5191 |
-| `node scripts/aceptacion.mjs <url>` | **14 comprobaciones**; es el criterio de aceptación vigente |
+| `node scripts/aceptacion.mjs <url>` | **comprobaciones**; es el criterio de aceptación vigente |
 | `node scripts/mirar.mjs <url> <carpeta>` | capturas reales con `puppeteer-core` contra el Chrome del sistema |
 | `node scripts/qa-tarjeta.mjs` | QA headless antiguo, del primer intento. Se conserva, pero manda `aceptacion.mjs` |
 

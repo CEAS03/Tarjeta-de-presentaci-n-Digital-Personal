@@ -119,7 +119,7 @@ recoge dos cambios de criterio de Carlos.
 ```
 npm run build
 npm run dev:https                                        # HTTPS en 5193, hace falta para iOS
-node scripts/aceptacion.mjs https://192.168.101.6:5193   # 14 comprobaciones
+node scripts/aceptacion.mjs https://192.168.101.6:5193   # comprobaciones
 node scripts/mirar.mjs https://192.168.101.6:5193 scripts/capturas/despues
 ```
 

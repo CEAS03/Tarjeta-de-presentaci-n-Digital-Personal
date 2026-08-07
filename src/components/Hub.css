@@ -98,7 +98,9 @@
      (`.retrato::before`), así que el filtro puede dejar de castigar la cara.
      Con 0.44 y el degradado a la vez, Carlos quedaba en penumbra: la foto se
      leía como una sombra. Se integra por el borde, no apagando el rostro. */
-  filter: saturate(0.72) contrast(1.04) brightness(0.9);
+  /* Prácticamente sin tocar: la foto luce por su propio fondo claro. Queda una
+     pizca de desaturación para que no choque con la paleta fría. */
+  filter: saturate(0.88) contrast(1.02) brightness(1);
 
   /* EL CÍRCULO. `closest-side` es obligatorio y no es un detalle: sin él,
      `radial-gradient(circle, …)` usa `farthest-corner`, el 92 % cae MÁS ALLÁ del
@@ -127,16 +129,18 @@
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  /* MUY REBAJADO el 2026-08-05. Carlos: «siento que tiene mucho efecto de negro
-     oscuro alrededor de mi foto en el círculo, quiero que sea mucho menor».
-     Antes llegaba al color de fondo puro en el borde y se comía el pelo y los
-     hombros. Ahora se queda en un tercio y no toca el borde: el que separa la
-     foto de la página pasa a ser el aro, no la penumbra. */
+  /* CASI RETIRADO, segunda rebaja del 2026-08-06. Carlos: «no quiero que sea tan
+     fuerte el efecto, quiero que sobresalga la foto porque tiene fondo blanco y
+     eso lo hace lucir».
+
+     Cambia el criterio: el fondo de estudio claro dejó de tratarse como un
+     problema a esconder y pasa a ser lo que hace destacar el retrato sobre una
+     página oscura. Solo queda un velo mínimo en el último tramo, para que el
+     canto no quede plano contra el aro. */
   background: radial-gradient(
     circle closest-side at 50% 50%,
-    transparent 0 74%,
-    color-mix(in srgb, var(--fondo) 18%, transparent) 92%,
-    color-mix(in srgb, var(--fondo) 34%, transparent) 100%
+    transparent 0 88%,
+    color-mix(in srgb, var(--fondo) 10%, transparent) 100%
   );
   pointer-events: none;
   transition: background var(--t-marca) var(--sal);
@@ -219,8 +223,14 @@
      abrió un vacío de ~250 px entre la tesis y la pregunta — exactamente la
      «bolsa de vacío» que Carlos rechazó en las ramas. */
   justify-content: space-between;
+  /* EL SUELO. En el teléfono de Carlos «Guardar mis datos · Compartir» quedaba
+     «en el mero filo»: 1 rem de holgura mínima no basta cuando encima está la
+     barra del navegador y, en iPhone, el indicador de inicio.
+     Ahora el suelo nunca baja de 2 rem, y `env(safe-area-inset-bottom)` se suma
+     además —no se elige el mayor de los dos— para que en un iPhone con notch la
+     línea quede por encima del indicador, no debajo. */
   padding: 0 var(--margen-lateral)
-    calc(clamp(var(--e-sm), 2.5svh, var(--e-lg)) + env(safe-area-inset-bottom));
+    calc(clamp(2rem, 4svh, 3rem) + env(safe-area-inset-bottom));
 }
 
 /* El bloque «quién soy». Se mantiene compacto: el aire sobrante va al corte que
@@ -565,5 +575,57 @@
     from {
       opacity: 0;
     }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PANTALLAS CORTAS — el fallo que Carlos vio en su teléfono, 2026-08-06.
+
+   «Hasta abajo, donde dice guardar mis datos y compartir, se ve apretado,
+   apenas se ve en el mero filo.» No estaba apretado: estaba FUERA. Medido:
+   −27 px en un iPhone SE (375×667) y −43 px en un Android de 360×640. La
+   última línea caía por debajo del borde y `overflow: hidden` la recortaba en
+   silencio.
+
+   POR QUÉ NO SALTÓ ANTES: `scripts/aceptacion.mjs` comprobaba
+   `scrollHeight > clientHeight`, y con `overflow: hidden` eso SIEMPRE da cero
+   aunque el contenido se salga. La comprobación era ciega justo al fallo que
+   introdujo el «sin scroll». Ya está corregida: ahora mide la posición real
+   del último elemento.
+
+   La solución no es permitir scroll —Carlos lo rechazó porque el fondo fijo se
+   comporta raro al desplazarse— sino que quepa de verdad. Aquí se recortan los
+   suelos que en pantalla corta ya no se pueden permitir.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-height: 720px) {
+  .retrato {
+    --lado: min(clamp(5.5rem, 26vw, 8rem), 20svh);
+  }
+
+  .hub__nombre {
+    font-size: min(clamp(2rem, 11vw, 3rem), 8svh);
+  }
+
+  .hub__descripcion {
+    font-size: clamp(0.9375rem, 2.1svh, 1rem);
+    line-height: 1.45;
+  }
+
+  .hub__pregunta {
+    font-size: clamp(1.0625rem, 2.5svh, 1.1875rem);
+  }
+
+  /* 88 px es criterio de aceptación en pantalla normal, pero en 640 px de alto
+     dos filas de 88 son el 27 % de todo. Bajan a 68, que sigue muy por encima
+     de los 44 px de área táctil mínima. Es la única forma de que quepa el
+     contenido entero sin recortarle una palabra a Carlos. */
+  .boton-marca {
+    min-height: 68px;
+    padding-block: 0.4rem;
+  }
+
+  .hub__contenido {
+    padding-bottom: calc(clamp(1.25rem, 3svh, 2rem) + env(safe-area-inset-bottom));
   }
 }

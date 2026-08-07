@@ -13,9 +13,14 @@ const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const base = process.argv[2] ?? 'http://localhost:5190';
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/* Los dos primeros son los teléfonos de referencia. Los DOS CORTOS se añadieron
+   el 2026-08-06: el fallo que Carlos vio —la última línea recortada— solo
+   aparece por debajo de ~700 px de alto, y sin ellos no había forma de verlo. */
 const VIEWPORTS = [
   { nombre: 'movil', width: 390, height: 844 },
   { nombre: 'grande', width: 430, height: 932 },
+  { nombre: 'corto-se', width: 375, height: 667 },
+  { nombre: 'corto-android', width: 360, height: 640 },
 ];
 const ESTADOS = ['', '?m=alsai', '?m=blindafon'];
 
@@ -47,8 +52,29 @@ for (const vp of VIEWPORTS) {
     const desborde = await p.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
+
+    /* CONTENIDO RECORTADO. Esta comprobación faltaba y su ausencia dejó pasar a
+       producción un fallo real: con `overflow: hidden` en el hub,
+       `scrollHeight - clientHeight` da CERO aunque el contenido se salga por
+       abajo, porque el navegador simplemente lo recorta. La comprobación de
+       desbordamiento era ciega justo al fallo que introdujo el «sin scroll».
+
+       Se mide la posición real del último elemento de cada pantalla contra el
+       borde inferior. Negativo = hay contenido fuera de la vista. */
+    const holgura = await p.evaluate(() => {
+      const ultimo =
+        document.querySelector('.hub__acciones-secundarias') ??
+        document.querySelector('.acciones-contacto');
+      if (!ultimo) return null;
+      return Math.round(innerHeight - ultimo.getBoundingClientRect().bottom);
+    });
+
     const etiqueta = `${vp.nombre} ${estado || 'hub'}`;
     anotar(desborde <= 0, `sin desbordamiento horizontal (${etiqueta}) — sobra ${desborde}px`);
+    anotar(
+      holgura === null || holgura >= 0,
+      `sin contenido recortado abajo (${etiqueta}) — holgura ${holgura}px`,
+    );
     anotar(errores.length === 0, `sin errores de consola (${etiqueta}) ${errores[0] ?? ''}`);
     await p.close();
   }

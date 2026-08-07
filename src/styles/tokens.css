@@ -62,21 +62,38 @@
      fondo con forma es justo el óvalo que Carlos rechazó; el halo sigue la
      silueta de las letras y por eso no dibuja ninguna forma reconocible. */
   --halo:
-    0 0 3px rgb(0 0 0 / 100%),
-    0 1px 3px rgb(0 0 0 / 100%),
-    0 0 6px rgb(0 0 0 / 96%),
-    0 2px 12px rgb(0 0 0 / 94%),
-    0 0 18px rgb(0 0 0 / 86%),
-    0 0 34px rgb(0 0 0 / 78%),
-    0 0 72px rgb(0 0 0 / 62%);
+    /* EL CONTORNO. Ocho direcciones a 1 y 2 px. `text-shadow` no tiene
+       parámetro de extensión, así que la única forma de conseguir un borde
+       oscuro que ABRACE la letra es apilar desplazamientos. Es esta capa la que
+       impide que una línea blanca del relieve cruce por encima de un trazo
+       blanco y se lo coma: entre las dos siempre queda un filo oscuro.
+       Al 88 % y no negro puro, para que sea un borde y no un cómic. */
+    1px 0 0 rgb(0 0 0 / 88%), -1px 0 0 rgb(0 0 0 / 88%),
+    0 1px 0 rgb(0 0 0 / 88%), 0 -1px 0 rgb(0 0 0 / 88%),
+    1px 1px 0 rgb(0 0 0 / 88%), -1px -1px 0 rgb(0 0 0 / 88%),
+    1px -1px 0 rgb(0 0 0 / 88%), -1px 1px 0 rgb(0 0 0 / 88%),
+    2px 0 0 rgb(0 0 0 / 62%), -2px 0 0 rgb(0 0 0 / 62%),
+    0 2px 0 rgb(0 0 0 / 62%), 0 -2px 0 rgb(0 0 0 / 62%),
+    /* EL AURA. Progresiva, para que el fondo se hunda alrededor del texto sin
+       que aparezca ningún borde de caja: sigue la silueta de las letras. */
+    0 0 4px rgb(0 0 0 / 100%),
+    0 0 8px rgb(0 0 0 / 98%),
+    0 0 16px rgb(0 0 0 / 94%),
+    0 0 28px rgb(0 0 0 / 86%),
+    0 0 48px rgb(0 0 0 / 72%),
+    0 0 90px rgb(0 0 0 / 55%);
 
-  /* Para texto pequeño, que es el más frágil: más cerrado, menos difuso. */
+  /* Para texto pequeño, que es el más frágil: mismo contorno, aura más cerrada
+     para no emborronar cuerpos de 13 px. */
   --halo-cerrado:
-    0 0 2px rgb(0 0 0 / 100%),
-    0 0 5px rgb(0 0 0 / 100%),
-    0 0 9px rgb(0 0 0 / 92%),
-    0 1px 10px rgb(0 0 0 / 90%),
-    0 0 20px rgb(0 0 0 / 70%);
+    1px 0 0 rgb(0 0 0 / 92%), -1px 0 0 rgb(0 0 0 / 92%),
+    0 1px 0 rgb(0 0 0 / 92%), 0 -1px 0 rgb(0 0 0 / 92%),
+    1px 1px 0 rgb(0 0 0 / 92%), -1px -1px 0 rgb(0 0 0 / 92%),
+    1px -1px 0 rgb(0 0 0 / 92%), -1px 1px 0 rgb(0 0 0 / 92%),
+    0 0 3px rgb(0 0 0 / 100%),
+    0 0 7px rgb(0 0 0 / 98%),
+    0 0 14px rgb(0 0 0 / 90%),
+    0 0 26px rgb(0 0 0 / 74%);
 
   /* Para elementos deliberadamente discretos, como la invitación. */
   --halo-tenue:
@@ -115,8 +132,8 @@
      este es un filo de 2 px sobre la foto, sin glow.
 
      Cambiar entre blanco y dorado es cambiar esta línea. */
-  --aro-retrato: rgb(226 199 130 / 88%); /* dorado */
-  --aro-retrato-grosor: 2px;
+  --aro-retrato: rgb(0 0 0 / 78%); /* NEGRO. El dorado se probó y Carlos lo descartó. */
+  --aro-retrato-grosor: 3px;
 
   --sal: cubic-bezier(0.16, 1, 0.3, 1);
   --t-micro: 240ms;

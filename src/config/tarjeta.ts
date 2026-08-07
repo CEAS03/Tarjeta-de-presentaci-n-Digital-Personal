@@ -6,7 +6,7 @@
  *  Los datos de cada marca están COPIADOS de su fuente el 2026-08-05.
  *  No hay sincronización automática y no debe haberla: acoplaría tres repos.
  *    · ALSAI     → Tarjeta . Landing ALSAI Claude\src\config\site.ts
- *    · Blindafón → Blindafon\Website\DATOS-NEGOCIO.md
+ *    · Blindafon → Blindafon\Website\DATOS-NEGOCIO.md
  *  Si un dato cambia allá, se actualiza aquí a mano. NUNCA de memoria.
  * ─────────────────────────────────────────────────────────────────────────────
  */
@@ -23,7 +23,7 @@ export type DatosMarca = {
    * ¿El archivo del logo ya trae escrito el nombre de la marca?
    *
    * ALSAI sí: su logo es un lockup con «ALSAI» y «Agencia» dentro de la imagen.
-   * Blindafón NO desde el activo nuevo del 2026-08-05: es un cohete-teléfono en
+   * Blindafon NO desde el activo nuevo del 2026-08-05: es un cohete-teléfono en
    * 3D, solo símbolo. El logo anterior sí llevaba el wordmark, y al cambiarlo el
    * nombre de la marca dejó de leerse en toda la pantalla.
    *
@@ -39,7 +39,7 @@ export type DatosMarca = {
   prueba: string;
   whatsapp: string;
   mensajeWa: string;
-  /** Vacío a propósito en Blindafón: no tiene correo. La línea del .vcf se omite. */
+  /** Vacío a propósito en Blindafon: no tiene correo. La línea del .vcf se omite. */
   correo: string;
   sitio: string;
   redes: Red[];
@@ -104,7 +104,7 @@ export const tarjeta = {
       mensajeAgenda: 'Hola Carlos, quiero agendar una llamada sobre ALSAI.',
     },
     blindafon: {
-      nombre: 'Blindafón',
+      nombre: 'Blindafon',
       logoSrc: '/blindafon.webp',
       logoIncluyeNombre: false,
       resumen: 'Blindaje nanotecnológico para pantallas',
@@ -114,7 +114,7 @@ export const tarjeta = {
         'Se aplica en 20 minutos, a domicilio en Querétaro.',
       prueba: '+860 dispositivos blindados',
       whatsapp: '+524428115588',
-      mensajeWa: 'Hola, vi tu tarjeta digital y quiero saber más sobre Blindafón.',
+      mensajeWa: 'Hola, vi tu tarjeta digital y quiero saber más sobre Blindafon.',
       correo: '',
       sitio: 'https://blindafon.com',
       redes: [

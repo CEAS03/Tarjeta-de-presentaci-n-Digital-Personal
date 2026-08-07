@@ -222,11 +222,17 @@
   line-height: 1.55;
   text-align: center;
   text-wrap: pretty;
-  text-shadow: 0 0.125rem 0.75rem var(--fondo), 0 0 2rem var(--fondo);
+  /* PISABA EL HALO GLOBAL. Este párrafo llevaba una sombra propia de dos capas
+     difusas con `--fondo`, mucho más débil que `--halo`, y por eso era justo el
+     texto que más se perdía entre las líneas del relieve. Ahora hereda. */
+  text-shadow: var(--halo);
 }
 
+/* `justify-self` además de `margin-inline: auto`: es un ítem de grid, y ahí el
+   margen automático no bastaba para centrarlo. Carlos lo pidió centrado. */
 .rama__prueba {
   width: fit-content;
+  justify-self: center;
   margin-inline: auto;
   display: inline-flex;
   align-items: center;

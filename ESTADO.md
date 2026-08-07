@@ -2,6 +2,54 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — El texto ya no se pierde, y un fallo que el «sin scroll» tapaba
+
+- **Resultado:** hechas las seis peticiones de Carlos de esta tanda. Y apareció un fallo real que
+  la prueba de aceptación **no podía ver**.
+
+### EL FALLO: contenido recortado en pantallas cortas
+
+Carlos: «hasta abajo, donde dice guardar mis datos y compartir, se ve apretado, apenas se ve en el
+mero filo». **No estaba apretado: estaba FUERA de la pantalla.** Medido: **−27 px** en un iPhone SE
+(375×667) y **−43 px** en un Android de 360×640. La última línea caía por debajo del borde y el
+`overflow: hidden` del hub la recortaba en silencio.
+
+**Por qué no saltó antes, que es lo importante:** `scripts/aceptacion.mjs` comprobaba
+`scrollHeight > clientHeight`. Con `overflow: hidden` eso da **siempre cero**, aunque el contenido
+se salga. La comprobación era ciega justo al fallo que introdujo el «sin scroll» — y por eso este
+documento ha venido diciendo «0 px de desbordamiento» mientras en el teléfono de Carlos faltaba
+contenido.
+
+Corregido en dos frentes:
+1. `scripts/aceptacion.mjs` mide ahora la **posición real del último elemento** contra el borde
+   inferior, y prueba también en **375×667 y 360×640**, que antes no se probaban.
+2. `Hub.css` gana un bloque `@media (max-height: 720px)` que recorta los suelos que en pantalla
+   corta ya no se pueden permitir. Las filas de marca bajan de 88 a 68 px ahí — sigue muy por
+   encima de los 44 px de área táctil, y es la única forma de que quepa todo **sin recortarle una
+   palabra a Carlos**. No se permite scroll: él lo rechazó porque el fondo fijo se comporta raro.
+
+Holgura bajo la última línea, después: **34 px** (390×844), **20 px** (375×667), **37 px**
+(430×932), **20 px** (360×640).
+
+### Las otras cinco
+
+- **«Blindafon» sin acento**, en los 20 sitios donde aparecía: `tarjeta.ts`, `index.html` (título,
+  Open Graph, Twitter y JSON-LD), aviso de privacidad y laboratorios.
+- **El texto ya no se pierde.** Se encontró la causa concreta: `.rama__descripcion` **pisaba el
+  halo global** con una sombra propia de dos capas difusas, mucho más débil. Era justo el párrafo
+  que peor se leía. Ahora hereda `--halo`, que además se rehízo: doce desplazamientos a 1 y 2 px
+  que forman un **contorno oscuro pegado a la letra** —lo que impide que una línea blanca del
+  relieve cruce por encima de un trazo blanco— más seis capas de aura progresiva. Sigue la silueta
+  de las letras: no dibuja ninguna caja ni ningún óvalo.
+- **Aro negro** en el retrato, 3 px. El dorado se probó y Carlos lo descartó.
+- **La viñeta del retrato, casi retirada.** Cambia el criterio: el fondo de estudio claro deja de
+  tratarse como un problema a esconder y pasa a ser lo que hace lucir la foto sobre una página
+  oscura. El filtro pasa de `brightness(0.9)` a `1`.
+- **«+860 dispositivos blindados» centrado.** Le faltaba `justify-self: center`: es un ítem de
+  grid y ahí el margen automático no bastaba.
+- **Verificación:** `npm run build` código 0 · `aceptacion.mjs` **todo en verde** con las
+  comprobaciones y los viewports nuevos · capturas en `scripts/capturas/aro-negro/`.
+
 ## 2026-08-06 — Activos definitivos, aro dorado, todo centrado y halo reforzado
 
 - **Resultado:** entran la foto en alta y el logo 3D de Blindafón, y con ellos tres peticiones de

@@ -54,7 +54,7 @@ function IconoEnlace({ nombre }: PropiedadesIconoEnlace) {
   );
 }
 
-/** Plantilla única de contenido para ALSAI y Blindafón. */
+/** Plantilla única de contenido para ALSAI y Blindafon. */
 export function Rama({ marca, onVolver, accionCompartir }: PropiedadesRama) {
   const { persona, acciones } = tarjeta;
   const datos = tarjeta.marcas[marca];
@@ -107,7 +107,7 @@ export function Rama({ marca, onVolver, accionCompartir }: PropiedadesRama) {
                   decoding="async"
                 />
                 {/* Si el archivo del logo NO trae el nombre —el cohete 3D de
-                    Blindafón es solo símbolo—, se escribe debajo. Sin esto, el
+                    Blindafon es solo símbolo—, se escribe debajo. Sin esto, el
                     nombre del negocio no aparece en ninguna parte de la
                     pantalla. Ver `logoIncluyeNombre` en tarjeta.ts. */}
                 <h1
