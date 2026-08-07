@@ -100,11 +100,15 @@
      leía como una sombra. Se integra por el borde, no apagando el rostro. */
   /* Prácticamente sin tocar: la foto luce por su propio fondo claro. Queda una
      pizca de desaturación para que no choque con la paleta fría. */
-  /* BLANCO, NO GRIS (Carlos, 2026-08-06). El fondo de estudio salía gris por la
-     suma de tres cosas: desaturación, brillo por debajo de 1, y sobre todo el
-     tinte de `.retrato::after` en `mix-blend-mode: color`, que arrastraba la
-     foto entera hacia el azul de la paleta. Ahora el blanco es blanco. */
-  filter: saturate(0.96) contrast(1.03) brightness(1.06);
+  /* COLORES ORIGINALES (Carlos, 2026-08-06: «parece que está un poquito blanco y
+     negro, quiero que pongas los colores originales»).
+
+     Se retira la desaturación por completo. Venía del planteamiento inicial, en
+     el que la foto se hundía para no chocar con una paleta fría; ese criterio ya
+     no aplica desde que el retrato es un círculo con aro y su fondo claro es lo
+     que lo hace lucir. Queda solo una pizca de brillo y contraste, que es
+     revelado fotográfico, no corrección de color. */
+  filter: contrast(1.04) brightness(1.04);
 
   /* EL CÍRCULO. `closest-side` es obligatorio y no es un detalle: sin él,
      `radial-gradient(circle, …)` usa `farthest-corner`, el 92 % cae MÁS ALLÁ del
@@ -185,9 +189,12 @@
   border-radius: inherit;
   background: var(--fondo);
   mix-blend-mode: color;
-  /* De 0.55 a 0.12: al 55 % teñía el fondo blanco de estudio y lo dejaba gris
-     azulado. Queda lo justo para que la foto no choque con la paleta fría. */
-  opacity: 0.12;
+  /* A CERO. `mix-blend-mode: color` sustituye el tono y la saturación del
+     backdrop por los de esta capa, y como esta capa es un azul casi negro, la
+     foto entera se iba al gris: era la causa principal del «blanco y negro» que
+     vio Carlos. Se deja la regla, no el efecto, para que quede constancia de
+     por qué no vuelve. */
+  opacity: 0;
   pointer-events: none;
   transition: background var(--t-marca) var(--sal);
 }
@@ -705,9 +712,31 @@
   z-index: 2;
 }
 
-/* El filete vivo pasa a ser el BORDE del botón, y la luz lo sigue recorriendo.
-   El `mask` con dos capas y `xor` deja solo el contorno: es un borde de 1 px
-   con un punto brillante que se mueve con el giroscopio. */
+/* ── EL BORDE DE CIRCUITO ──────────────────────────────────────────────────
+   Carlos: «una línea fina delgada del color, y que se encienda, pero no pareja,
+   sino como si tuviera ritmo, o como si fuera un circuito».
+
+   Cómo funciona: el `mask` con dos capas y `exclude` deja solo el contorno de
+   1 px. Encima va un `conic-gradient` con DOS segmentos encendidos en lados
+   opuestos y el resto apagado; al girar el ángulo, esos dos segmentos recorren
+   el perímetro del rectángulo. Como el gradiente es cónico y el borde es un
+   rectángulo, los segmentos aceleran en las esquinas y se frenan en los lados
+   rectos: el pulso NO va a velocidad constante, y ese desigual es justo lo que
+   lo hace leer a circuito y no a marquesina.
+
+   El ritmo se refuerza con una curva de tiempo que empuja y descansa, en vez de
+   `linear`. Dos segmentos y no uno: uno solo se lee a «cargando».
+
+   EXCEPCIÓN DELIBERADA a la regla de «solo transform y opacity»: esto anima un
+   ángulo, que repinta. Se acepta porque son dos elementos pequeños y porque el
+   acabado manda sobre el rendimiento (AGENTS.md). Con `prefers-reduced-motion`
+   el pulso se detiene y queda el borde fijo. */
+@property --angulo-circuito {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .boton-marca::after {
   inset: 0;
   right: auto;
@@ -717,13 +746,26 @@
   border-radius: inherit;
   padding: 1px;
   background:
+    conic-gradient(
+      from var(--angulo-circuito) at 50% 50%,
+      transparent 0deg,
+      color-mix(in srgb, var(--punto-marca) 90%, white) 10deg,
+      var(--punto-marca) 18deg,
+      transparent 34deg,
+      transparent 170deg,
+      var(--punto-marca) 188deg,
+      color-mix(in srgb, var(--punto-marca) 90%, white) 196deg,
+      transparent 214deg,
+      transparent 360deg
+    ),
     linear-gradient(
       120deg,
       transparent 0%,
-      rgb(255 255 255 / calc(0.75 * var(--luz-roce))) var(--luz-px),
+      rgb(255 255 255 / calc(0.5 * var(--luz-roce))) var(--luz-px),
       transparent 100%
     ),
-    rgb(255 255 255 / 16%);
+    color-mix(in srgb, var(--punto-marca) 26%, transparent);
+  animation: circuito 4.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   mask:
     linear-gradient(#000 0 0) content-box exclude,
     linear-gradient(#000 0 0);
@@ -733,6 +775,18 @@
   mask-composite: exclude;
   -webkit-mask-composite: xor;
   z-index: 1;
+}
+
+@keyframes circuito {
+  to {
+    --angulo-circuito: 360deg;
+  }
+}
+
+/* Cada marca arranca su pulso desfasado: si los dos botones laten a la vez se
+   lee a animación de plantilla, no a dos circuitos independientes. */
+.boton-marca[data-marca-destino='blindafon']::after {
+  animation-delay: -2.1s;
 }
 
 .boton-marca:active {
@@ -754,5 +808,10 @@
   .boton-marca,
   .boton-marca::before {
     transition-duration: 150ms;
+  }
+
+  /* El pulso se detiene; el borde de color se queda, fijo. */
+  .boton-marca::after {
+    animation: none;
   }
 }

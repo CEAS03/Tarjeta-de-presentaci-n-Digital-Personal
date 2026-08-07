@@ -2,6 +2,47 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — Borde de circuito, colores reales de la foto, y el texto MEDIDO
+
+- **Lo importante de esta entrada:** Carlos pidió que antes de entregar se
+  **verificara** que el texto blanco ya no se confunde con las líneas blancas. Se hizo con una
+  medición, no a ojo, y **la primera medición dijo que NO**. Ver abajo.
+
+### `scripts/verificar-texto.mjs` — la herramienta que faltaba
+
+Pone la luz en su pico —el peor caso—, hace el texto **transparente**, captura, y mide el píxel
+más claro que queda justo donde vivían las letras, renglón por renglón. Devuelve la razón de
+contraste WCAG contra el blanco del texto.
+
+Dos falsos negativos que hubo que depurar antes de fiarse del número, y merecen quedar escritos:
+1. `getBoundingClientRect()` de un elemento en línea devuelve **la unión de todas sus líneas**, e
+   incluye el hueco entre renglones, donde no hay fondo a propósito. Se pasó a `Range
+   .getClientRects()`, que da un rectángulo por línea — la superficie real del fondo.
+2. El separador «·» del rol y el punto de la prueba llevan `color: var(--acento)` propio y **no
+   heredaban** el `transparent` de la sonda: se estaba midiendo un glifo cian de 181/255 como si
+   fuera una línea del relieve.
+
+**Resultado final: 20:1 de contraste** en los tres estados, contra el 4.5:1 que exige AA. El
+fondo por renglón funciona; antes de él, ese mismo punto estaba en 187/255, es decir casi blanco
+contra texto blanco.
+
+### El resto
+
+- **Borde de circuito en los botones de marca**, idea de Carlos. Un `conic-gradient` de dos
+  segmentos encendidos girando sobre un contorno de 1 px hecho con `mask-composite: exclude`. Como
+  el gradiente es cónico y el borde rectangular, los segmentos **aceleran en las esquinas y se
+  frenan en los lados**: el pulso no va a velocidad constante, y ese desigual es lo que lo hace
+  leer a circuito. Los dos botones van desfasados 2.1 s para que no laten a la vez.
+  **Excepción deliberada** a «solo transform y opacity»: anima un ángulo y repinta. Se acepta por
+  ser dos elementos pequeños y porque el acabado manda sobre el rendimiento. Se detiene con
+  `prefers-reduced-motion`.
+- **Colores originales del retrato.** Se retiran la desaturación y, sobre todo, el tinte de
+  `.retrato::after` en `mix-blend-mode: color`: esa capa sustituye tono y saturación del backdrop
+  por los suyos, y siendo un azul casi negro arrastraba la foto entera al gris. Era la causa
+  principal del «se ve un poquito blanco y negro».
+- **Verificación:** `npm run build` código 0 · `aceptacion.mjs` todo en verde ·
+  `verificar-texto.mjs` todo en verde · capturas en `scripts/capturas/circuito/`.
+
 ## 2026-08-06 — El texto ya no se pierde, y un fallo que el «sin scroll» tapaba
 
 - **Resultado:** hechas las seis peticiones de Carlos de esta tanda. Y apareció un fallo real que
