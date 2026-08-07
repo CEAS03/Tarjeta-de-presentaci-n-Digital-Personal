@@ -21,6 +21,13 @@
   flex-direction: column;
   height: 100svh;
   overflow: hidden;
+  /* EL CONJUNTO, CENTRADO — tercera vuelta al hueco, 2026-08-06.
+     Antes `.hub__contenido` usaba `space-between` con dos hijos, así que TODO el
+     sobrante de la pantalla caía en el único corte entre la tesis y la pregunta:
+     el hueco que Carlos rodeó en rojo en su captura.
+     Centrando la columna entera, ese mismo sobrante se reparte arriba y abajo en
+     márgenes, que no se leen como un agujero sino como aire. */
+  justify-content: safe center;
 }
 
 /* ── El retrato ────────────────────────────────────────────────────────────
@@ -54,7 +61,7 @@
      contenido era demasiado corto para la pantalla y todo el sobrante caía en
      ese único corte. En vez de repartir vacío, se llena: de 34 a 42vw y de 26 a
      30svh de tope. Carlos lo ve en el teléfono, que es donde importa. */
-  --lado: min(clamp(7.5rem, 42vw, 14rem), 30svh);
+  --lado: min(clamp(7rem, 37vw, 12.5rem), 27svh);
   width: var(--lado);
   height: var(--lado);
   flex: none;
@@ -236,15 +243,14 @@
   align-items: center;
   text-align: center;
   position: relative;
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  /* Reparte el sobrante entre los tres bloques. Antes `.hub__eleccion` llevaba
-     `margin-top: auto` y se lo quedaba TODO de golpe: al encoger el retrato eso
-     abrió un vacío de ~250 px entre la tesis y la pregunta — exactamente la
-     «bolsa de vacío» que Carlos rechazó en las ramas. */
-  justify-content: space-between;
+  /* Ya NO reparte: el sobrante lo absorbe el centrado de `.hub`. Aquí solo hay
+     un ritmo fijo entre los dos bloques. */
+  justify-content: flex-start;
+  gap: clamp(0.9rem, 3svh, 2rem);
   /* EL SUELO. En el teléfono de Carlos «Guardar mis datos · Compartir» quedaba
      «en el mero filo»: 1 rem de holgura mínima no basta cuando encima está la
      barra del navegador y, en iPhone, el indicador de inicio.
@@ -274,7 +280,7 @@
   font-family: var(--display-hub);
   /* El `min` contra `svh` es lo que salva la pantalla corta: en 667 px de alto
      el nombre baja solo, sin que haya que tocar la escala en el resto. */
-  font-size: min(clamp(2.5rem, 14vw, 5rem), 10.5svh);
+  font-size: min(clamp(2.25rem, 13vw, 4.5rem), 9.2svh);
   font-weight: var(--display-hub-peso);
   line-height: 0.94;
   letter-spacing: -0.035em;
@@ -298,7 +304,7 @@
   margin: clamp(0.7rem, 1.6svh, 1.15rem) auto 0;
   /* No baja de 1rem: por debajo, la tesis deja de leerse cómoda y el ahorro no
      compensa. Si un día no cupiera ni así, se pregunta antes de recortar texto. */
-  font-size: clamp(1rem, 2.6svh, 1.3125rem);
+  font-size: clamp(1rem, 2.35svh, 1.1875rem);
   /* De 1.5 a 1.75: con el fondo por renglón, un interlineado corto pega las
      franjas unas a otras y el párrafo se lee amontonado. */
   line-height: 1.75;
@@ -319,7 +325,7 @@
   max-width: var(--ancho-texto);
   margin: 0 auto clamp(0.75rem, 1.6svh, var(--e-md));
   font-family: var(--display-hub);
-  font-size: clamp(1.1875rem, 3.2svh, 1.625rem);
+  font-size: clamp(1.125rem, 2.85svh, 1.5rem);
   font-weight: 400;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -488,7 +494,7 @@
 
 .hub__acciones-secundarias {
   display: flex;
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   gap: 0.5rem;
   margin-top: clamp(0.25rem, 1.2svh, var(--e-md));
@@ -715,8 +721,13 @@
      Resultado: dentro del botón las líneas del relieve se ven CLARAMENTE al
      revés que fuera, y siguen moviéndose con el giroscopio porque son el mismo
      fondo, no una imitación. */
-  backdrop-filter: invert(1) saturate(0.4);
-  -webkit-backdrop-filter: invert(1) saturate(0.4);
+  /* `saturate(0.15)` y no 0.4: al invertir, el fondo de Blindafon (#0a0e18, un
+     azul muy oscuro) se convierte en una crema CÁLIDA. Esa calidez, más el tinte
+     naranja, más la capa negra, daba un marrón rojizo — el «color rojo» que vio
+     Carlos. Desaturando el campo invertido casi a gris, el naranja del tinte
+     vuelve a leerse naranja. */
+  backdrop-filter: invert(1) saturate(0.15) contrast(1.05);
+  -webkit-backdrop-filter: invert(1) saturate(0.15) contrast(1.05);
   /* La capa oscura que hace legible el texto, más el acento de la marca muy
      tenue para anticipar a dónde lleva cada botón. El acento va a poca fuerza:
      encima del campo invertido claro, un naranja al 22 % se leía a rojo

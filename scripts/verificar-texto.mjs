@@ -77,7 +77,27 @@ for (const [nombre, q] of [['hub', ''], ['alsai', '?m=alsai'], ['blindafon', '?m
     const ctx = c.getContext('2d');
     ctx.drawImage(img, 0, 0);
     return cajas.map((k) => {
-      const d = ctx.getImageData(k.x * dpr, k.y * dpr, Math.max(1, k.w * dpr), Math.max(1, k.h * dpr)).data;
+      /* SE MIDE LA BANDA DE TINTA, NO LA CAJA DE LÍNEA.
+         `getClientRects()` devuelve la caja de línea completa, que incluye el
+         INTERLINEADO: una franja de aire arriba y abajo donde ningún glifo llega
+         nunca. Midiendo ahí, una línea del relieve que pasa ENTRE dos renglones
+         se contaba como si estuviera detrás de una letra.
+
+         Pasó, y se verificó en captura antes de tocar esto: la sonda marcaba
+         4.0:1 en la pregunta del hub mientras el velo funcionaba —4 a 8 de 255 a
+         ocho píxeles por encima y por debajo— y el recorte ampliado enseñaba una
+         línea fina cruzando por el aire sobre las letras, sin competir con
+         ninguna. Eso no es un fallo de legibilidad: es el fondo, que se sigue
+         viendo, que es justamente lo que se busca.
+
+         Se recorta un 18 % arriba y un 12 % abajo (los descendentes bajan más) y
+         1 px a los lados. Queda la banda donde de verdad hay letras. */
+      const rTop = Math.round(k.h * dpr * 0.18);
+      const rBot = Math.round(k.h * dpr * 0.12);
+      const d = ctx.getImageData(
+        k.x * dpr + 1, k.y * dpr + rTop,
+        Math.max(1, k.w * dpr - 2), Math.max(1, k.h * dpr - rTop - rBot),
+      ).data;
       let max = 0;
       for (let i = 0; i < d.length; i += 4) {
         const v = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];

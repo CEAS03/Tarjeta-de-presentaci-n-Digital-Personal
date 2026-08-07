@@ -210,70 +210,94 @@ h3 {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   EL ESCRITO — fondo oscuro DETRÁS DEL TEXTO, y solo detrás del texto.
+   EL VELO — cómo se separa el texto blanco de un fondo de líneas blancas.
 
-   Carlos lo pidió tres veces, y las tres se intentó resolver reforzando el
-   halo. No bastaba: el halo es una sombra, y por muchas capas que se apilen
-   nunca llega a tapar las líneas blancas del relieve que cruzan POR DENTRO del
-   renglón, entre palabra y palabra. Ahí el texto blanco seguía compitiendo con
-   una línea blanca.
+   TRES INTENTOS Y POR QUÉ FALLARON LOS DOS PRIMEROS:
 
-   La solución es un fondo real. Lo que lo salva de convertirse en la caja que
-   está prohibida —y en el óvalo que ya se eliminó— es `box-decoration-break:
-   clone`: al ser un elemento EN LÍNEA, el fondo se recorta a cada renglón por
-   separado y sigue el borde irregular del párrafo. No hay un rectángulo que
-   encierre el bloque; hay tantas franjas como líneas de texto, cada una del
-   ancho exacto de su línea.
+   1. Reforzar el halo (una sombra por letra). Insuficiente: la sombra abraza el
+      glifo, pero entre palabra y palabra la línea del relieve pasa entera y a
+      pleno brillo.
+   2. Un fondo negro por renglón (`box-decoration-break: clone`). Funcionaba y
+      medía 19:1, pero Carlos lo rechazó con razón: «parece efecto de Instagram
+      súper básico, cero profesional». Cualquier forma con canto se lee a
+      elemento de interfaz, y una franja por línea se lee a subtítulo de vídeo.
 
-   Y va al 46 %, no opaco, a propósito: las líneas del relieve se siguen viendo
-   por debajo, apagadas. Es lo que pidió Carlos —«que el texto sobresalga pero
-   también se siga viendo ligeramente el efecto del fondo»—.
+   3. ESTE. El diagnóstico que faltaba: el problema NO es de brillo, es de TIPO
+      DE MARCA. Las líneas del relieve son trazos finos, blancos y de canto duro;
+      las letras también. Compiten porque son la misma clase de marca, no porque
+      el fondo sea claro. Oscurecer tapaba el síntoma.
+
+      Lo que lo resuelve es DESENFOCAR el fondo justo detrás del texto. Una línea
+      desenfocada deja de ser una línea y pasa a ser un degradado suave: sigue
+      ahí, sigue moviéndose con el giroscopio, se sigue percibiendo —que es lo
+      que Carlos pide— pero deja de competir como trazo. Es profundidad de campo,
+      no un panel encima.
+
+   POR QUÉ NO SE VE EL VELO:
+   · El oscurecimiento es mínimo: `brightness(0.86)` y un 5 % de negro. Se bajó
+     hasta ahí midiendo, no a ojo: con el desenfoque haciendo el trabajo, el
+     contraste aguanta muy por encima del mínimo aun casi sin oscurecer.
+   · Vive en un `::before` del BLOQUE, no en el texto, y va enmascarado con dos
+     degradados cruzados que lo desvanecen a cero por los cuatro lados. No tiene
+     canto en ninguna parte: no hay nada que el ojo pueda encontrar.
+   · Se pone en el bloque y no en línea porque una máscara sobre el texto también
+     desvanecería las letras.
+
+   La legibilidad por glifo la sigue dando `--halo`. El velo solo baja el
+   contraste del fondo lo justo para que el halo tenga contra qué recortar.
+   Verificado con `scripts/verificar-texto.mjs`.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .escrito {
-  /* En línea: es lo que hace que el fondo se parta por renglones. */
-  display: inline;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  background: rgb(0 0 0 / 34%);
-  /* El aire lateral evita que la primera y la última letra queden pegadas al
-     canto del fondo. Va en `em` para que escale con cada tamaño de texto. */
-  padding: 0.18em 0.6em;
-  /* Radio generoso: con el canto redondeado y la sombra difusa de abajo, el
-     renglón deja de leerse a rectángulo. */
-  border-radius: 0.9em;
-  /* EL DIFUMINADO DEL BORDE. Carlos: «difumina todos esos bordes negros que
-     están alrededor del texto». Un `background` es un color liso y su canto es
-     duro por definición; lo que lo suaviza es esta sombra, del mismo negro, muy
-     abierta y sin desplazamiento: extiende la oscuridad hacia fuera perdiendo
-     fuerza, así que entre el fondo del renglón y el relieve ya no hay un salto,
-     hay una caída. */
-  box-shadow:
-    0 0 6px 3px rgb(0 0 0 / 22%),
-    0 0 16px 8px rgb(0 0 0 / 14%);
-  /* Compensa el alto extra que mete el padding: sin esto, las líneas de un
-     párrafo se separarían más de lo que dice su `line-height`. */
-  margin-inline: -0.06em;
+  position: relative;
 }
 
-/* En pantallas donde el navegador lo soporta, además se difumina lo que hay
-   detrás. El relieve sigue visible pero deja de tener bordes duros justo bajo
-   las letras, que es lo que producía la confusión entre línea y trazo. */
-@supports (backdrop-filter: blur(2px)) {
-  .escrito {
-    /* SEGUNDA CALIBRACIÓN, 2026-08-06. Carlos: «se ve muy brusco y no deja
-       percibir el fondo, nada más se ve el fondo negro y ya».
+.escrito::before {
+  content: '';
+  position: absolute;
+  /* Se desborda del texto lo suficiente para que TODO el desvanecido de la
+     máscara ocurra fuera del área de las letras. Ver la nota de la máscara. */
+  inset: -0.85em -2.1em;
+  z-index: -1;
+  pointer-events: none;
 
-       El culpable era `brightness(0.42)`: multiplicar por 0.42 aplasta las
-       líneas del relieve casi a negro y el resultado se lee a mancha lisa. Sube
-       a 0.72 —el relieve se sigue viendo, apagado— y la opacidad baja de 26 a
-       18 %. El desenfoque sube a 10 px: quita el canto duro de las líneas sin
-       borrarlas, que es lo que evita confundir línea blanca con trazo blanco.
+  background: rgb(0 0 0 / 10%);
+  backdrop-filter: blur(22px) brightness(0.76) saturate(0.9);
+  -webkit-backdrop-filter: blur(22px) brightness(0.76) saturate(0.9);
 
-       Mismo criterio que Carlos señaló en los botones: poca opacidad, el fondo
-       se sigue percibiendo, y aun así el texto sobresale. */
-    background: rgb(0 0 0 / 18%);
-    backdrop-filter: blur(10px) brightness(0.72) saturate(0.85);
-    -webkit-backdrop-filter: blur(10px) brightness(0.72) saturate(0.85);
+  /* LOS BORDES, DESVANECIDOS. Dos degradados cruzados que se intersecan: el
+     velo llega a opacidad plena en el centro y a cero en los cuatro cantos.
+     Es lo que impide que se lea como una caja.
+
+     LAS PARADAS VAN EN `em`, NO EN PORCENTAJE, y no es un detalle. Con
+     porcentajes el desvanecido escala con la altura del bloque: en un párrafo
+     de cinco líneas, el 18 % superior se comía el primer renglón entero y ahí
+     el velo estaba a media opacidad. Se midió: el punto más claro detrás de esa
+     primera línea daba 130/255 y el contraste caía a 3.9:1, mientras el resto
+     del párrafo iba holgado. Subir el desenfoque no lo arreglaba, porque el
+     problema no era el desenfoque sino que ahí el velo casi no estaba.
+
+     En `em` el desvanecido mide siempre lo mismo —1.2em arriba y abajo, 1.3em a
+     los lados— y cabe entero dentro del desbordamiento de 1.5/1.6em. Así el
+     texto queda SIEMPRE sobre la zona de opacidad plena, tenga el párrafo una
+     línea o seis. */
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 0.6em, #000 calc(100% - 0.6em), transparent 100%);
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 0.6em, #000 calc(100% - 0.6em), transparent 100%);
+  /* `intersect` va DESPUÉS de la versión `-webkit-`, y a propósito. En Chrome
+     `-webkit-mask-composite` es un alias de `mask-composite` pero acepta otros
+     valores; poner `source-in` ahí invalidaba la declaración estándar y las dos
+     máscaras dejaban de intersecarse. Declarando el estándar al final, gana. */
+  mask-composite: intersect;
+}
+
+/* Sin `backdrop-filter` no hay desenfoque posible, así que se cae a un velo
+   igual de discreto pero solo de opacidad. */
+@supports not (backdrop-filter: blur(2px)) {
+  .escrito::before {
+    background: rgb(0 0 0 / 34%);
   }
 }

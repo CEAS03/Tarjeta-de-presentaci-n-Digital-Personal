@@ -2,6 +2,55 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — El velo: el diagnóstico que faltaba sobre el texto
+
+### El problema no era de brillo, era de TIPO DE MARCA
+
+Tres intentos hicieron falta, y los dos primeros fallaron por atacar lo que no era:
+
+1. **Reforzar el halo** (sombra por letra). Insuficiente: la sombra abraza el glifo, pero entre
+   palabra y palabra la línea del relieve pasa entera y a pleno brillo.
+2. **Fondo negro por renglón** (`box-decoration-break: clone`). Medía 19:1, pero Carlos lo rechazó
+   con razón: «parece efecto de Instagram súper básico, cero profesional». Cualquier forma con
+   canto se lee a elemento de interfaz, y una franja por línea se lee a subtítulo de vídeo.
+3. **El velo.** Las líneas del relieve son trazos finos, blancos y de canto duro; las letras
+   también. Compiten porque son **la misma clase de marca**, no porque el fondo sea claro. Lo que
+   lo resuelve es **desenfocar** el fondo detrás del texto: una línea desenfocada deja de ser una
+   línea y pasa a ser un degradado. Sigue ahí, sigue moviéndose con el giroscopio, se sigue
+   percibiendo —lo que Carlos pide— pero deja de competir como trazo. Es profundidad de campo.
+
+El velo es un `::before` del bloque con `backdrop-filter: blur(22px) brightness(0.76)` y un 10 % de
+negro, enmascarado con dos degradados cruzados que lo desvanecen a cero por los cuatro lados. **No
+tiene canto en ninguna parte.** El oscurecimiento se bajó midiendo, no a ojo.
+
+**Las paradas de la máscara van en `em`, no en porcentaje**, y eso importa: con porcentajes el
+desvanecido escalaba con la altura del bloque y en un párrafo largo se comía el primer renglón, que
+quedaba a media opacidad. Medido: 130/255 y 3.9:1 ahí, mientras el resto iba holgado.
+
+### La sonda de contraste tenía un tercer sesgo
+
+`verificar-texto.mjs` medía la **caja de línea** completa, que incluye el interlineado — una franja
+de aire donde ningún glifo llega. Una línea del relieve pasando **entre** dos renglones se contaba
+como si estuviera detrás de una letra: marcaba 4.0:1 con el velo funcionando perfectamente (4-8/255
+a ocho píxeles arriba y abajo, medido, y confirmado en captura ampliada). Ahora recorta 18 % arriba
+y 12 % abajo y mide la banda donde de verdad hay tinta.
+
+Es el tercer sesgo que se le corrige a esta sonda; los otros dos fueron medir la unión de líneas en
+vez de línea a línea, y no apagar los glifos de color de marca.
+
+### Lo demás
+
+- **El naranja de Blindafon.** Se leía a rojo ladrillo: al invertir, su fondo (`#0a0e18`) se vuelve
+  una crema **cálida**, y esa calidez más el tinte naranja más la capa negra daba marrón.
+  `saturate(0.15)` deja el campo invertido casi gris y el naranja vuelve a ser naranja.
+- **El hueco del hub, tercera vuelta.** Ya no se reparte vacío: `.hub` centra la columna entera y
+  el sobrante cae como márgenes arriba y abajo. Medido de **~330 px a 35-47 px** en cinco
+  teléfonos, incluido el 412×915 de Carlos. Al crecer el contenido se pasó y recortó la última
+  línea en 390×844 (−22 px) — **lo cazó la comprobación de recorte** que se añadió el día anterior,
+  y se ajustó la escala.
+- **Verificación:** `npm run build` 0 · `aceptacion.mjs` todo en verde · `verificar-texto.mjs` todo
+  en verde · capturas en `scripts/capturas/velo/`.
+
 ## 2026-08-06 — Los siete cambios: inversión visible, circuito por giroscopio, botón de sitio
 
 - **Dominio:** `https://carlos.agencia-alsai.com/` **vivo**. Carlos creó el registro A.
