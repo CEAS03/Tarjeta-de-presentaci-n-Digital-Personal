@@ -126,18 +126,24 @@ export function Rama({ marca, onVolver, accionCompartir }: PropiedadesRama) {
             )}
 
             <p className="rama__rol">
-              {persona.nombre} <span aria-hidden="true">·</span> {datos.rol}
+              <span className="escrito">
+                {persona.nombre} <span aria-hidden="true">·</span> {datos.rol}
+              </span>
             </p>
           </div>
         </header>
 
         <div className="rama__presentacion">
-          <p className="rama__descripcion">{datos.descripcion}</p>
+          <p className="rama__descripcion">
+            <span className="escrito">{datos.descripcion}</span>
+          </p>
 
           {datos.prueba && (
             <p className="rama__prueba">
-              <span className="rama__prueba-marca" aria-hidden="true" />
-              {datos.prueba}
+              <span className="escrito">
+                <span className="rama__prueba-marca" aria-hidden="true" />
+                {datos.prueba}
+              </span>
             </p>
           )}
         </div>

@@ -55,9 +55,22 @@ export function AccionesContacto({ marca, accionCompartir }: PropiedadesAcciones
           }}
           aria-label={`Abrir WhatsApp de ${datos.nombre}`}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M20.4 11.65a8.3 8.3 0 0 1-12.3 7.3L4 20l1.1-3.95a8.3 8.3 0 1 1 15.3-4.4Z" />
-            <path d="M9.1 7.7c.2-.45.4-.45.7-.45h.45c.15 0 .3.05.4.35l.8 1.95c.1.25.05.4-.1.6l-.6.75c-.15.15-.1.35 0 .5.7 1.25 1.65 2.2 2.9 2.8.2.1.35.1.5-.1l.85-1.05c.2-.2.4-.2.65-.1l1.85.9c.25.15.4.2.45.35.05.15.05.85-.2 1.55-.25.65-1.45 1.25-2 1.3-.55.05-1.25.25-4.1-.9-3.45-1.4-5.7-4.95-5.85-5.15-.15-.2-1.4-1.85-1.4-3.5 0-1.65.85-2.45 1.15-2.8" />
+          {/* EL GLIFO OFICIAL DE WHATSAPP, redibujado el 2026-08-06.
+              El anterior estaba trazado a mano con dos `path` de contorno: la
+              burbuja no cerraba bien la cola y el auricular quedaba como un
+              trazo suelto —«una raya medio rara que no va en el logo original»,
+              dijo Carlos. Este es la silueta rellena de la marca, que es como
+              WhatsApp la dibuja.
+              Va RELLENO, no de contorno como el resto de los iconos: forzar la
+              marca de un tercero a un sistema de trazo es justo lo que la
+              deformaba. Por eso lleva su propia clase. */}
+          <svg
+            className="accion-contacto__glifo"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.86 9.86 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm5.8 14.17c-.24.68-1.4 1.3-1.96 1.38-.5.08-1.14.11-1.83-.12-.42-.13-.97-.31-1.66-.61-2.93-1.27-4.84-4.22-4.99-4.42-.15-.2-1.19-1.58-1.19-3.02 0-1.44.76-2.14 1.03-2.44.27-.3.58-.37.78-.37.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.83 2.01.9 2.16.07.15.12.32.02.52-.1.2-.15.32-.29.5-.15.17-.31.39-.44.52-.15.15-.3.31-.13.6.17.3.76 1.25 1.63 2.03 1.12 1 2.06 1.31 2.36 1.46.3.15.47.12.64-.07.17-.2.74-.86.94-1.16.2-.3.39-.25.66-.15.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.13.07.72-.17 1.4Z" />
           </svg>
           <span>{acciones.whatsapp}</span>
         </a>

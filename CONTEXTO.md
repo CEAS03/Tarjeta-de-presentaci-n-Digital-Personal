@@ -90,4 +90,4 @@ contradiciéndose.
 - **Vercel**: el proyecto `carlos-alvarez-tarjeta` sigue pendiente de crear.
 - **Endpoint de agendado** (n8n + calendario): sin definir. El agendado actual ya funciona por
   WhatsApp mientras `agendaUrl` siga vacío.
-- **LinkedIn**: la tarjeta de ALSAI lo tiene vacío. Si Carlos tiene perfil, se añade.
+- ~~**LinkedIn**~~ **DESCARTADO el 2026-08-06: Carlos no lo quiere en la tarjeta.**

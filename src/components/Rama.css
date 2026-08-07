@@ -522,6 +522,15 @@
   stroke-linejoin: round;
 }
 
+/* El glifo oficial de WhatsApp es una SILUETA, no un trazo. El sistema pone
+   `fill: none; stroke: currentColor` a todos los iconos, y aplicárselo a él lo
+   deformaba: la burbuja no cerraba y el auricular quedaba como una raya suelta.
+   Se le devuelve el relleno. */
+.accion-contacto__glifo {
+  fill: currentColor;
+  stroke: none;
+}
+
 /* WhatsApp es la acción principal. Se distingue por COLOR, no por una caja:
    el icono toma el acento de la marca y su glow. Es lo que la hace saltar sin
    convertirla en un rectángulo. */

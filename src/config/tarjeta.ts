@@ -108,6 +108,8 @@ export const tarjeta = {
       logoSrc: '/blindafon.webp',
       logoIncluyeNombre: false,
       resumen: 'Blindaje nanotecnológico para pantallas',
+      /* CONFIRMADO por Carlos el 2026-08-06. Llevaba desde el primer día como
+         dato por verificar. */
       rol: 'Fundador',
       descripcion:
         'Blindaje líquido nanotecnológico para las pantallas de tus dispositivos. ' +

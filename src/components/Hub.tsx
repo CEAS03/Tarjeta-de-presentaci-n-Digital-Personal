@@ -40,15 +40,21 @@ export function Hub({
             <h1 className="hub__nombre" id="hub-nombre">
               {persona.nombre}
             </h1>
-            <p className="hub__ciudad">{persona.ciudad}</p>
+              <p className="hub__ciudad">
+              <span className="escrito">{persona.ciudad}</span>
+            </p>
           </header>
 
-          <p className="hub__descripcion">{persona.descripcion}</p>
+          {/* El texto va envuelto en `.escrito` para que el fondo oscuro siga
+              las LÍNEAS del párrafo y no dibuje un rectángulo. Ver base.css. */}
+          <p className="hub__descripcion">
+            <span className="escrito">{persona.descripcion}</span>
+          </p>
         </div>
 
         <section className="hub__eleccion" aria-labelledby="hub-pregunta">
           <h2 className="hub__pregunta" id="hub-pregunta">
-            {persona.pregunta}
+            <span className="escrito">{persona.pregunta}</span>
           </h2>
 
           <nav className="hub__opciones" aria-labelledby="hub-pregunta">

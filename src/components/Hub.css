@@ -100,7 +100,11 @@
      leía como una sombra. Se integra por el borde, no apagando el rostro. */
   /* Prácticamente sin tocar: la foto luce por su propio fondo claro. Queda una
      pizca de desaturación para que no choque con la paleta fría. */
-  filter: saturate(0.88) contrast(1.02) brightness(1);
+  /* BLANCO, NO GRIS (Carlos, 2026-08-06). El fondo de estudio salía gris por la
+     suma de tres cosas: desaturación, brillo por debajo de 1, y sobre todo el
+     tinte de `.retrato::after` en `mix-blend-mode: color`, que arrastraba la
+     foto entera hacia el azul de la paleta. Ahora el blanco es blanco. */
+  filter: saturate(0.96) contrast(1.03) brightness(1.06);
 
   /* EL CÍRCULO. `closest-side` es obligatorio y no es un detalle: sin él,
      `radial-gradient(circle, …)` usa `farthest-corner`, el 92 % cae MÁS ALLÁ del
@@ -181,7 +185,9 @@
   border-radius: inherit;
   background: var(--fondo);
   mix-blend-mode: color;
-  opacity: 0.55;
+  /* De 0.55 a 0.12: al 55 % teñía el fondo blanco de estudio y lo dejaba gris
+     azulado. Queda lo justo para que la foto no choque con la paleta fría. */
+  opacity: 0.12;
   pointer-events: none;
   transition: background var(--t-marca) var(--sal);
 }
@@ -277,7 +283,13 @@
   /* No baja de 1rem: por debajo, la tesis deja de leerse cómoda y el ahorro no
      compensa. Si un día no cupiera ni así, se pregunta antes de recortar texto. */
   font-size: clamp(1rem, 2.3svh, 1.1875rem);
-  line-height: 1.5;
+  /* De 1.5 a 1.75: con el fondo por renglón, un interlineado corto pega las
+     franjas unas a otras y el párrafo se lee amontonado. */
+  line-height: 1.75;
+  /* Equilibra las líneas para que no quede una palabra suelta al final —el
+     «espacio en blanco raro» que veía Carlos era una última línea de dos
+     palabras con el resto del renglón vacío. */
+  text-wrap: balance;
   color: rgb(255 255 255 / 94%);
 }
 
@@ -627,5 +639,120 @@
 
   .hub__contenido {
     padding-bottom: calc(clamp(1.25rem, 3svh, 2rem) + env(safe-area-inset-bottom));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAS FILAS DE MARCA, AHORA SÍ CON FORMA DE BOTÓN — 2026-08-06.
+
+   Carlos: «la parte de Agencia ALSAI y Blindafon, quiero que se aprecie más que
+   son botones», y propuso él mismo la idea: «un rectángulo para simular un
+   botón, pero que el efecto del fondo se vea similar adentro pero invertido».
+
+   ES VIABLE, y se resuelve con `backdrop-filter: invert(1)`. El botón no
+   dibuja un fondo propio: es una VENTANA al mismo relieve que hay detrás, con
+   los colores invertidos. Las líneas blancas del fondo se ven negras dentro del
+   botón, y siguen moviéndose con el giroscopio porque son literalmente el mismo
+   fondo. No es una imitación: es el fondo, del revés.
+
+   Esto contradice la vieja prohibición de «ningún rectángulo con esquinas
+   redondeadas». Lo pidió Carlos expresamente y manda. La diferencia con lo que
+   rechazó en su día es que aquello era un relleno de color plano y muerto; esto
+   está vivo y sigue siendo la misma superficie.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.boton-marca {
+  border-radius: 14px;
+  padding-inline: 1.25rem;
+  overflow: hidden;
+  /* SIN `isolation: isolate` a propósito: aislar crea un contexto de
+     apilamiento propio y entonces `backdrop-filter` deja de ver el relieve —
+     solo vería el fondo del propio botón, que es transparente, y la ventana
+     invertida no se dibujaría. Se aísla el texto por z-index, no el botón. */
+  transition:
+    transform var(--t-micro) var(--sal),
+    border-color var(--t-micro) var(--sal);
+}
+
+/* LA VENTANA INVERTIDA. Va en un pseudo-elemento y no en el botón para poder
+   animar su opacidad sin arrastrar al texto. */
+.boton-marca::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  /* Invertir deja el campo casi blanco y el texto blanco encima se perdía.
+     El `brightness` bajo devuelve el botón a un gris de carbón donde las líneas
+     invertidas se leen como vetas, y el texto blanco recupera todo su contraste.
+     Es la misma superficie del fondo, del revés y en penumbra. */
+  backdrop-filter: invert(1) saturate(0.3) brightness(0.22) contrast(1.15);
+  -webkit-backdrop-filter: invert(1) saturate(0.3) brightness(0.22) contrast(1.15);
+  /* El acento de la marca, muy tenue, tiñe la ventana: anticipa a dónde lleva
+     cada fila sin pintarla de color plano. */
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--punto-marca) 22%, transparent),
+    transparent 68%
+  );
+  transition: opacity var(--t-micro) var(--sal);
+}
+
+/* El contenido, por encima de la ventana. */
+.boton-marca__texto,
+.boton-marca__flecha {
+  position: relative;
+  z-index: 2;
+}
+
+/* El filete vivo pasa a ser el BORDE del botón, y la luz lo sigue recorriendo.
+   El `mask` con dos capas y `xor` deja solo el contorno: es un borde de 1 px
+   con un punto brillante que se mueve con el giroscopio. */
+.boton-marca::after {
+  inset: 0;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  padding: 1px;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 0%,
+      rgb(255 255 255 / calc(0.75 * var(--luz-roce))) var(--luz-px),
+      transparent 100%
+    ),
+    rgb(255 255 255 / 16%);
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  z-index: 1;
+}
+
+.boton-marca:active {
+  transform: scale(0.975);
+}
+
+.boton-marca:active::before {
+  opacity: 0.55;
+}
+
+/* El conjunto deja de ser una tabla de contenidos y pasa a ser dos botones
+   separados: fuera el filete que los unía, y aire entre ellos. */
+.hub__opciones {
+  gap: clamp(0.6rem, 1.6svh, 0.9rem);
+  border-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-marca,
+  .boton-marca::before {
+    transition-duration: 150ms;
   }
 }
