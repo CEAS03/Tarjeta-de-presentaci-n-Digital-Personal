@@ -422,12 +422,16 @@
   margin-bottom: 0.15rem;
 }
 
+/* El ángulo de tono de cada marca, contado desde el ~38° que deja `sepia(1)`.
+   Calibrados en captura: cian #37e2e4 está en ~181°, naranja #f18b3b en ~26°. */
 .boton-marca[data-marca-destino='alsai'] {
   --punto-marca: #37e2e4;
+  --tinte-marca: grayscale(1) sepia(1) hue-rotate(146deg) saturate(5) brightness(1.05);
 }
 
 .boton-marca[data-marca-destino='blindafon'] {
   --punto-marca: #f18b3b;
+  --tinte-marca: grayscale(1) sepia(1) hue-rotate(-10deg) saturate(4.2) brightness(1.08);
 }
 
 .boton-marca__texto {
@@ -704,41 +708,29 @@
   inset: 0;
   z-index: 0;
   border-radius: inherit;
-  /* POR QUÉ NO SE VEÍA LA INVERSIÓN, y cómo se arregla — 2026-08-06.
-     Carlos: «no hiciste ningún efecto, nada más el recuadro».
+  /* LAS LÍNEAS TOMAN EL COLOR DE LA MARCA al entrar en el botón — decisión de
+     Carlos del 2026-08-06, y sustituye al `invert(1)` que había aquí.
 
-     El `invert(1)` sí estaba, pero le seguía un `brightness(0.22)` puesto para
-     que el texto blanco no se perdiera sobre el campo invertido, que queda casi
-     blanco. Ahí estaba el error: `brightness` MULTIPLICA, así que comprime las
-     diferencias. Con 0.22 el campo caía a 53/255 y las líneas invertidas a 8:
-     45 puntos de separación, invisibles.
+     POR QUÉ SE CAMBIÓ. Invertir tenía un conflicto físico insalvable: el fondo
+     es casi negro y las líneas casi blancas, así que al invertir el campo del
+     botón queda CLARO. Para que el texto blanco se leyera había que volver a
+     oscurecerlo, y al hacerlo la inversión dejaba de percibirse. Se probaron
+     `brightness` y capas de negro; el conflicto es de raíz, no de calibración.
 
-     La corrección es no filtrar el brillo, sino componer una capa oscura ENCIMA
-     del backdrop ya invertido. El alfa compone en vez de multiplicar y conserva
-     mucho mejor la estructura: campo ~92, líneas ~13. El doble de separación, y
-     el texto blanco conserva 6.7:1 de contraste.
+     El teñido lo elimina: el botón sigue oscuro, el texto sigue blanco, y las
+     líneas cambian de color en cuanto entran. La cadena
+     `grayscale → sepia → hue-rotate` mapea la luminancia a un tono, y funciona
+     tan bien aquí precisamente porque el campo es casi negro —teñirlo apenas lo
+     mueve— mientras que las líneas, que son lo único claro, se llevan todo el
+     color.
 
-     Resultado: dentro del botón las líneas del relieve se ven CLARAMENTE al
-     revés que fuera, y siguen moviéndose con el giroscopio porque son el mismo
-     fondo, no una imitación. */
-  /* `saturate(0.15)` y no 0.4: al invertir, el fondo de Blindafon (#0a0e18, un
-     azul muy oscuro) se convierte en una crema CÁLIDA. Esa calidez, más el tinte
-     naranja, más la capa negra, daba un marrón rojizo — el «color rojo» que vio
-     Carlos. Desaturando el campo invertido casi a gris, el naranja del tinte
-     vuelve a leerse naranja. */
-  backdrop-filter: invert(1) saturate(0.15) contrast(1.05);
-  -webkit-backdrop-filter: invert(1) saturate(0.15) contrast(1.05);
-  /* La capa oscura que hace legible el texto, más el acento de la marca muy
-     tenue para anticipar a dónde lleva cada botón. El acento va a poca fuerza:
-     encima del campo invertido claro, un naranja al 22 % se leía a rojo
-     ladrillo — era el «color rojo» que vio Carlos en Blindafon. */
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--punto-marca) 14%, transparent),
-      transparent 72%
-    ),
-    rgb(0 0 0 / 62%);
+     `sepia(1)` deja el tono en ~38°, así que el `hue-rotate` se cuenta desde
+     ahí. Los ángulos están calibrados en captura, no deducidos. */
+  backdrop-filter: var(--tinte-marca);
+  -webkit-backdrop-filter: var(--tinte-marca);
+  /* La capa oscura que hace legible el texto. Al 44 %, no al 62 %: el teñido
+     tiene que verse, y ese negro es lo único que lo tapaba. */
+  background: rgb(0 0 0 / 44%);
   transition: opacity var(--t-micro) var(--sal);
 }
 
@@ -782,7 +774,9 @@
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  padding: 1px;
+  /* 2 px, no 1: Carlos pidió el borde más grueso. Es el grosor que deja el
+     `mask-composite: exclude` entre las dos capas. */
+  padding: 2px;
   background:
     conic-gradient(
       from var(--luz-angulo) at 50% 50%,

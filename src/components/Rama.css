@@ -901,15 +901,12 @@
   inset: 0;
   z-index: 0;
   border-radius: inherit;
-  backdrop-filter: invert(1) saturate(0.4);
-  -webkit-backdrop-filter: invert(1) saturate(0.4);
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--acento) 16%, transparent),
-      transparent 72%
-    ),
-    rgb(0 0 0 / 60%);
+  /* Mismo teñido que los botones de marca del hub: las líneas toman el color
+     de la marca al entrar. Ver la nota larga en Hub.css sobre por qué se
+     abandonó `invert(1)`. Aquí el tono viene de la rama activa. */
+  backdrop-filter: var(--tinte-rama);
+  -webkit-backdrop-filter: var(--tinte-rama);
+  background: rgb(0 0 0 / 44%);
   transition: opacity var(--t-micro) var(--sal);
 }
 
@@ -922,7 +919,8 @@
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  padding: 1px;
+  /* 2 px, como los botones del hub. */
+  padding: 2px;
   pointer-events: none;
   background:
     conic-gradient(

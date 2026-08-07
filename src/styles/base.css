@@ -248,8 +248,21 @@ h3 {
    Verificado con `scripts/verificar-texto.mjs`.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* `inline-block` Y NO `inline`, y no es cosmético — era un fallo.
+
+   El bloque contenedor de un `::before` absoluto dentro de un elemento EN LÍNEA
+   no es la unión de sus renglones: es el rectángulo que forman su PRIMER y su
+   ÚLTIMO fragmento. Con texto centrado y una última línea corta, esa caja no
+   llega al ancho real del párrafo, y el velo se cortaba por la derecha: ahí el
+   relieve volvía a verse a pleno brillo y el texto competía con las líneas otra
+   vez. Carlos lo marcó en una captura.
+
+   Con `inline-block` la caja SÍ es la unión real de las líneas. Si alguien lo
+   devuelve a `inline`, el fallo vuelve. */
 .escrito {
   position: relative;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .escrito::before {
@@ -257,13 +270,22 @@ h3 {
   position: absolute;
   /* Se desborda del texto lo suficiente para que TODO el desvanecido de la
      máscara ocurra fuera del área de las letras. Ver la nota de la máscara. */
-  inset: -0.85em -2.1em;
+  /* El desbordamiento crece a la par que el desvanecido de la máscara, y esa
+     relación es la regla: el fade tiene que caber ENTERO aquí dentro. Si crece
+     más que el inset, el primer renglón se queda a media opacidad — pasó, se
+     midió (130/255 y 3.9:1) y costó encontrarlo. */
+  inset: -1.6em -2.6em;
   z-index: -1;
   pointer-events: none;
 
-  background: rgb(0 0 0 / 10%);
-  backdrop-filter: blur(22px) brightness(0.76) saturate(0.9);
-  -webkit-backdrop-filter: blur(22px) brightness(0.76) saturate(0.9);
+  /* AL ~50 %, que es lo que pidió Carlos tomando como referencia los botones:
+     «tienen como 40 % y sí se alcanza a ver el fondo y también permite leer bien
+     el texto; eso es lo que quiero en todo el texto».
+     El negro va al 50 % y el `brightness` sube casi a 1: antes oscurecían los
+     dos y se sumaban. Así el número que se lee aquí es el que se ve. */
+  background: rgb(0 0 0 / 50%);
+  backdrop-filter: blur(22px) brightness(0.96) saturate(0.9);
+  -webkit-backdrop-filter: blur(22px) brightness(0.96) saturate(0.9);
 
   /* LOS BORDES, DESVANECIDOS. Dos degradados cruzados que se intersecan: el
      velo llega a opacidad plena en el centro y a cero en los cuatro cantos.
@@ -282,11 +304,11 @@ h3 {
      texto queda SIEMPRE sobre la zona de opacidad plena, tenga el párrafo una
      línea o seis. */
   mask-image:
-    linear-gradient(to right, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 0.6em, #000 calc(100% - 0.6em), transparent 100%);
+    linear-gradient(to right, transparent 0, #000 2.2em, #000 calc(100% - 2.2em), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%);
   -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 0.6em, #000 calc(100% - 0.6em), transparent 100%);
+    linear-gradient(to right, transparent 0, #000 2.2em, #000 calc(100% - 2.2em), transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%);
   /* `intersect` va DESPUÉS de la versión `-webkit-`, y a propósito. En Chrome
      `-webkit-mask-composite` es un alias de `mask-composite` pero acepta otros
      valores; poner `source-in` ahí invalidaba la declaración estándar y las dos
@@ -298,6 +320,6 @@ h3 {
    igual de discreto pero solo de opacidad. */
 @supports not (backdrop-filter: blur(2px)) {
   .escrito::before {
-    background: rgb(0 0 0 / 34%);
+    background: rgb(0 0 0 / 58%);
   }
 }

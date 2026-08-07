@@ -2,6 +2,44 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — El velo, completo y al 50 %; las líneas se tiñen dentro de los botones
+
+### El velo se cortaba por la derecha, y era un fallo estructural
+
+Carlos lo marcó en una captura: en ALSAI el lado derecho del párrafo no tenía velo y ahí el texto
+volvía a competir con las líneas.
+
+**Causa:** `.escrito` era un elemento **en línea**. El bloque contenedor de un `::before` absoluto
+dentro de un inline **no es la unión de sus renglones**, sino el rectángulo que forman su primer y
+su último fragmento. Con texto centrado y última línea corta, esa caja no llega al ancho del
+párrafo. No se arreglaba ensanchando el `inset`. Ahora es `inline-block`, cuya caja sí es la unión
+real. Si alguien lo devuelve a `inline`, el fallo vuelve.
+
+### Calibración que pidió Carlos
+
+Velo al **50 %** —su referencia fueron los botones: «tienen como 40 % y sí se alcanza a ver el
+fondo y también permite leer bien el texto»— y `brightness` casi a 1, porque antes oscurecían los
+dos y se sumaban: ahora el número que se lee en el código es el que se ve. El desvanecido de los
+bordes casi se duplica, y el `inset` crece con él: **el fade tiene que caber entero dentro del
+desbordamiento**, o el primer renglón se queda a media opacidad. Bordes de circuito de 1 a 2 px.
+
+### Las líneas toman el color de la marca dentro de los botones
+
+Sustituye a `invert(1)`, que tenía un **conflicto físico insalvable**: el fondo es casi negro y las
+líneas casi blancas, así que al invertir el campo del botón queda claro; para que el texto blanco
+se leyera había que oscurecerlo, y al hacerlo la inversión dejaba de percibirse. Se probaron
+`brightness` y capas de negro — el conflicto es de raíz, no de calibración. **Carlos eligió el
+teñido** entre las tres opciones que se le plantearon.
+
+La cadena `grayscale → sepia → hue-rotate` mapea luminancia a tono, y funciona tan bien aquí
+precisamente porque el campo es casi negro —teñirlo apenas lo mueve— mientras que las líneas, lo
+único claro, se llevan todo el color. `sepia(1)` deja el tono en ~38°, así que el `hue-rotate` se
+cuenta desde ahí: **+146° para el cian de ALSAI, −10° para el naranja de Blindafon**. Calibrados en
+captura. El botón sigue oscuro y el texto sigue blanco: desaparece el conflicto.
+
+- **Verificación:** `npm run build` 0 · `aceptacion.mjs` todo en verde · `verificar-texto.mjs` todo
+  en verde · capturas en `scripts/capturas/velo2/`.
+
 ## 2026-08-06 — El velo: el diagnóstico que faltaba sobre el texto
 
 ### El problema no era de brillo, era de TIPO DE MARCA

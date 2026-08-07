@@ -159,3 +159,14 @@ html[data-marca='blindafon'] {
   --acento-2: var(--blindafon-acento-2);
   --glow: rgba(241, 139, 59, 0.3);
 }
+
+/* El tinte de cada rama, para el botón de sitio web. Mismo recurso que el de
+   los botones de marca del hub (ver Hub.css): las líneas del relieve toman el
+   color de la marca al cruzar el botón. */
+html[data-marca='alsai'] {
+  --tinte-rama: grayscale(1) sepia(1) hue-rotate(146deg) saturate(5) brightness(1.05);
+}
+
+html[data-marca='blindafon'] {
+  --tinte-rama: grayscale(1) sepia(1) hue-rotate(-10deg) saturate(4.2) brightness(1.08);
+}
