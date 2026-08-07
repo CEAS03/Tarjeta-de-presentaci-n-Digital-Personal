@@ -23,9 +23,12 @@ externas de las marcas solo se consultan si una tarea pide actualizar sus datos 
 
 | | |
 |---|---|
-| En línea | `https://tarjeta-de-presentacion-personal.vercel.app` — **viva desde el 2026-08-06** |
+| **Producción** | **`https://carlos.agencia-alsai.com/`** — viva. Carlos creó el registro A el 2026-08-06 |
+| Vercel | `tarjeta-de-presentacion-personal.vercel.app` (el mismo despliegue) |
 | Repo GitHub | `github.com/CEAS03/Tarjeta-de-presentaci-n-Digital-Personal`, rama `master` |
-| Dominio final | `https://carlos.agencia-alsai.com` — **pendiente**: falta el registro A en Namecheap |
+
+`index.html`, `sitemap.xml`, `robots.txt` y `src/lib/origen.ts` ya apuntaban a
+`carlos.agencia-alsai.com` desde el principio: con el DNS activo no hubo nada que cambiar.
 
 ## Stack y comandos
 
@@ -152,7 +155,7 @@ El apex, `www` y `conecta` de `agencia-alsai.com` son de otros proyectos: **no t
 
 ## Pendientes externos y evolución
 
-- Producción y proyecto de Vercel siguen pendientes de crear; el DNS lo crea Carlos en Namecheap.
+- ~~Producción, Vercel y DNS~~ **RESUELTO el 2026-08-06.**
 - Endpoint de agendado (n8n + calendario): sin definir. No bloquea el flujo actual: mientras
   `agendaUrl` esté vacío, el botón abre una hoja y continúa por WhatsApp con el mensaje precargado.
 - La firma manuscrita se descartó el 2026-08-05. No es un activo pendiente ni se reincorpora sin
