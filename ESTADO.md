@@ -2,6 +2,46 @@
 
 Lo más reciente arriba. Escriben Claude y Codex; Carlos lee.
 
+## 2026-08-06 — El fondo del texto, ceñido a cada renglón; teñido de botones más suave
+
+### Cuatro intentos con el fondo del texto, y por qué falló cada uno
+
+Vale la pena el registro completo: cada intento falló por algo distinto, y volver atrás sin saberlo
+cuesta horas.
+
+1. **Solo halo** (sombra por letra). Insuficiente: abraza el glifo, pero entre palabra y palabra la
+   línea del relieve pasa entera y a pleno brillo.
+2. **Franja por renglón, color plano y canto duro.** Medía 19:1 pero Carlos la rechazó: «parece
+   efecto de Instagram súper básico». **El fallo no era la idea del renglón: era el canto duro**,
+   que se lee a subtítulo de vídeo.
+3. **Velo desenfocado sobre el bloque entero.** Resolvía el canto, pero dejó de ceñirse: «ya no se
+   ve dónde termina cada texto, se ve un cuadrado negro feo». Un párrafo tiene líneas largas y
+   cortas y todas quedaban dentro del mismo rectángulo.
+4. **El vigente:** vuelve al renglón —lo que Carlos pide— con los cantos desvanecidos, que es lo
+   que le faltaba al intento 2.
+
+**Cómo se ciñe:** `box-decoration-break: clone` dibuja el fondo completo en cada fragmento de
+línea, así que cada renglón recibe su propia mancha del ancho exacto de esa línea.
+**Cómo se desvanece:** el fondo no es color plano sino un degradado radial que llega a opacidad
+plena en el centro del renglón y a cero en sus cantos. Al 40 %, como pidió Carlos.
+
+**Qué se perdió:** el intento 3 desenfocaba el fondo con `backdrop-filter`, y ese desenfoque era lo
+que impedía que una línea compitiera como trazo con una letra. No se puede aplicar por fragmento de
+forma fiable. Lo compensan el scrim y `--halo` — y se comprobó midiendo, no suponiendo:
+`verificar-texto.mjs` sigue en verde sin el desenfoque.
+
+**El bug del velo cortado no vuelve** aunque el elemento vuelva a ser `inline`: aquel venía de un
+`::before` absoluto dentro de un inline, y ahora el fondo va en el propio elemento.
+
+### Los botones
+
+El teñido irradiaba demasiado. Baja el `saturate` de 5 a 2.4 (cian) y de 4.2 a 2.1 (naranja), con
+un punto menos de `brightness`. **Se conserva el `hue-rotate`**: el tono ya estaba bien, lo que
+sobraba era la intensidad.
+
+- **Verificación:** `npm run build` 0 · `aceptacion.mjs` en verde · `verificar-texto.mjs` en verde ·
+  capturas en `scripts/capturas/renglon/`.
+
 ## 2026-08-06 — El velo, completo y al 50 %; las líneas se tiñen dentro de los botones
 
 ### El velo se cortaba por la derecha, y era un fallo estructural

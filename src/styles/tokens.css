@@ -164,9 +164,9 @@ html[data-marca='blindafon'] {
    los botones de marca del hub (ver Hub.css): las líneas del relieve toman el
    color de la marca al cruzar el botón. */
 html[data-marca='alsai'] {
-  --tinte-rama: grayscale(1) sepia(1) hue-rotate(146deg) saturate(5) brightness(1.05);
+  --tinte-rama: grayscale(1) sepia(1) hue-rotate(146deg) saturate(2.4) brightness(0.92);
 }
 
 html[data-marca='blindafon'] {
-  --tinte-rama: grayscale(1) sepia(1) hue-rotate(-10deg) saturate(4.2) brightness(1.08);
+  --tinte-rama: grayscale(1) sepia(1) hue-rotate(-10deg) saturate(2.1) brightness(0.95);
 }

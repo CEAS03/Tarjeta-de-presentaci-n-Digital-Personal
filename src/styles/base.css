@@ -210,116 +210,64 @@ h3 {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   EL VELO — cómo se separa el texto blanco de un fondo de líneas blancas.
+   EL VELO — fondo oscuro ceñido a CADA RENGLÓN, y desvanecido.
 
-   TRES INTENTOS Y POR QUÉ FALLARON LOS DOS PRIMEROS:
+   CUATRO INTENTOS. Merece la pena el registro porque cada uno falló por algo
+   distinto y volver atrás sin saberlo cuesta horas:
 
-   1. Reforzar el halo (una sombra por letra). Insuficiente: la sombra abraza el
-      glifo, pero entre palabra y palabra la línea del relieve pasa entera y a
-      pleno brillo.
-   2. Un fondo negro por renglón (`box-decoration-break: clone`). Funcionaba y
-      medía 19:1, pero Carlos lo rechazó con razón: «parece efecto de Instagram
-      súper básico, cero profesional». Cualquier forma con canto se lee a
-      elemento de interfaz, y una franja por línea se lee a subtítulo de vídeo.
+   1. Solo halo (sombra por letra). Insuficiente: la sombra abraza el glifo, pero
+      entre palabra y palabra la línea del relieve pasa entera y a pleno brillo.
+   2. Franja negra por renglón, color plano y canto duro. Medía 19:1 pero Carlos
+      la rechazó: «parece efecto de Instagram súper básico». El fallo no era la
+      idea del renglón: era el CANTO DURO, que se lee a subtítulo de vídeo.
+   3. Velo desenfocado sobre el BLOQUE entero. Resolvía el canto, pero dejó de
+      ceñirse: «ya no se ve dónde termina cada texto, se ve un cuadrado negro
+      feo». Un párrafo tiene líneas largas y cortas y todas quedaban dentro del
+      mismo rectángulo.
+   4. ESTE: vuelve al renglón —que es lo que Carlos pide— pero con los cantos
+      desvanecidos, que es lo que le faltaba al intento 2.
 
-   3. ESTE. El diagnóstico que faltaba: el problema NO es de brillo, es de TIPO
-      DE MARCA. Las líneas del relieve son trazos finos, blancos y de canto duro;
-      las letras también. Compiten porque son la misma clase de marca, no porque
-      el fondo sea claro. Oscurecer tapaba el síntoma.
+   CÓMO SE CIÑE. `box-decoration-break: clone` hace que el fondo se dibuje
+   COMPLETO en cada fragmento de línea, no estirado a lo largo del bloque. Cada
+   renglón recibe su propia mancha, del ancho exacto de esa línea.
 
-      Lo que lo resuelve es DESENFOCAR el fondo justo detrás del texto. Una línea
-      desenfocada deja de ser una línea y pasa a ser un degradado suave: sigue
-      ahí, sigue moviéndose con el giroscopio, se sigue percibiendo —que es lo
-      que Carlos pide— pero deja de competir como trazo. Es profundidad de campo,
-      no un panel encima.
+   CÓMO SE DESVANECE. El fondo no es un color plano sino un degradado radial que
+   llega a opacidad plena en el centro del renglón y a cero en sus cantos. No hay
+   borde que el ojo pueda encontrar.
 
-   POR QUÉ NO SE VE EL VELO:
-   · El oscurecimiento es mínimo: `brightness(0.86)` y un 5 % de negro. Se bajó
-     hasta ahí midiendo, no a ojo: con el desenfoque haciendo el trabajo, el
-     contraste aguanta muy por encima del mínimo aun casi sin oscurecer.
-   · Vive en un `::before` del BLOQUE, no en el texto, y va enmascarado con dos
-     degradados cruzados que lo desvanecen a cero por los cuatro lados. No tiene
-     canto en ninguna parte: no hay nada que el ojo pueda encontrar.
-   · Se pone en el bloque y no en línea porque una máscara sobre el texto también
-     desvanecería las letras.
+   QUÉ SE PERDIÓ EN EL CAMBIO. El intento 3 desenfocaba el fondo con
+   `backdrop-filter`, y ese desenfoque era lo que impedía que una línea compitiera
+   como trazo con una letra. No se puede aplicar por fragmento de forma fiable,
+   así que se va. Lo compensan el scrim y `--halo`, y por eso aquí manda la
+   medición: `scripts/verificar-texto.mjs` tiene que quedar en verde.
 
-   La legibilidad por glifo la sigue dando `--halo`. El velo solo baja el
-   contraste del fondo lo justo para que el halo tenga contra qué recortar.
-   Verificado con `scripts/verificar-texto.mjs`.
+   El `padding` es generoso a propósito: todo el desvanecido tiene que caer FUERA
+   de la banda de letras. Si invade el texto, el contraste se hunde justo ahí —
+   pasó con la máscara del intento 3 y costó encontrarlo.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* `inline-block` Y NO `inline`, y no es cosmético — era un fallo.
-
-   El bloque contenedor de un `::before` absoluto dentro de un elemento EN LÍNEA
-   no es la unión de sus renglones: es el rectángulo que forman su PRIMER y su
-   ÚLTIMO fragmento. Con texto centrado y una última línea corta, esa caja no
-   llega al ancho real del párrafo, y el velo se cortaba por la derecha: ahí el
-   relieve volvía a verse a pleno brillo y el texto competía con las líneas otra
-   vez. Carlos lo marcó en una captura.
-
-   Con `inline-block` la caja SÍ es la unión real de las líneas. Si alguien lo
-   devuelve a `inline`, el fallo vuelve. */
 .escrito {
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-}
+  /* EN LÍNEA, que es lo que permite el reparto por renglones. El fallo del velo
+     cortado por la derecha no vuelve: aquel venía de un `::before` absoluto
+     dentro de un inline, y aquí el fondo va en el propio elemento. */
+  display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 
-.escrito::before {
-  content: '';
-  position: absolute;
-  /* Se desborda del texto lo suficiente para que TODO el desvanecido de la
-     máscara ocurra fuera del área de las letras. Ver la nota de la máscara. */
-  /* El desbordamiento crece a la par que el desvanecido de la máscara, y esa
-     relación es la regla: el fade tiene que caber ENTERO aquí dentro. Si crece
-     más que el inset, el primer renglón se queda a media opacidad — pasó, se
-     midió (130/255 y 3.9:1) y costó encontrarlo. */
-  inset: -1.6em -2.6em;
-  z-index: -1;
-  pointer-events: none;
+  /* 40 %, como pidió Carlos: lo justo para que el texto sobresalga y el relieve
+     se siga percibiendo por detrás. */
+  background-image: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    rgb(0 0 0 / 40%) 0%,
+    rgb(0 0 0 / 40%) 42%,
+    rgb(0 0 0 / 30%) 62%,
+    rgb(0 0 0 / 12%) 82%,
+    transparent 100%
+  );
 
-  /* AL ~50 %, que es lo que pidió Carlos tomando como referencia los botones:
-     «tienen como 40 % y sí se alcanza a ver el fondo y también permite leer bien
-     el texto; eso es lo que quiero en todo el texto».
-     El negro va al 50 % y el `brightness` sube casi a 1: antes oscurecían los
-     dos y se sumaban. Así el número que se lee aquí es el que se ve. */
-  background: rgb(0 0 0 / 50%);
-  backdrop-filter: blur(22px) brightness(0.96) saturate(0.9);
-  -webkit-backdrop-filter: blur(22px) brightness(0.96) saturate(0.9);
-
-  /* LOS BORDES, DESVANECIDOS. Dos degradados cruzados que se intersecan: el
-     velo llega a opacidad plena en el centro y a cero en los cuatro cantos.
-     Es lo que impide que se lea como una caja.
-
-     LAS PARADAS VAN EN `em`, NO EN PORCENTAJE, y no es un detalle. Con
-     porcentajes el desvanecido escala con la altura del bloque: en un párrafo
-     de cinco líneas, el 18 % superior se comía el primer renglón entero y ahí
-     el velo estaba a media opacidad. Se midió: el punto más claro detrás de esa
-     primera línea daba 130/255 y el contraste caía a 3.9:1, mientras el resto
-     del párrafo iba holgado. Subir el desenfoque no lo arreglaba, porque el
-     problema no era el desenfoque sino que ahí el velo casi no estaba.
-
-     En `em` el desvanecido mide siempre lo mismo —1.2em arriba y abajo, 1.3em a
-     los lados— y cabe entero dentro del desbordamiento de 1.5/1.6em. Así el
-     texto queda SIEMPRE sobre la zona de opacidad plena, tenga el párrafo una
-     línea o seis. */
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 2.2em, #000 calc(100% - 2.2em), transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%);
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 2.2em, #000 calc(100% - 2.2em), transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 1.3em, #000 calc(100% - 1.3em), transparent 100%);
-  /* `intersect` va DESPUÉS de la versión `-webkit-`, y a propósito. En Chrome
-     `-webkit-mask-composite` es un alias de `mask-composite` pero acepta otros
-     valores; poner `source-in` ahí invalidaba la declaración estándar y las dos
-     máscaras dejaban de intersecarse. Declarando el estándar al final, gana. */
-  mask-composite: intersect;
-}
-
-/* Sin `backdrop-filter` no hay desenfoque posible, así que se cae a un velo
-   igual de discreto pero solo de opacidad. */
-@supports not (backdrop-filter: blur(2px)) {
-  .escrito::before {
-    background: rgb(0 0 0 / 58%);
-  }
+  /* Ancho para que el degradado tenga dónde morir sin tocar las letras. */
+  padding: 0.55em 1.1em;
+  /* Compensa el aire lateral: sin esto, cada renglón empujaría al siguiente y el
+     párrafo se separaría más de lo que dice su interlineado. */
+  margin-inline: -0.55em;
 }

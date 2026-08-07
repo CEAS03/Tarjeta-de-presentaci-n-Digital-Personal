@@ -426,12 +426,12 @@
    Calibrados en captura: cian #37e2e4 está en ~181°, naranja #f18b3b en ~26°. */
 .boton-marca[data-marca-destino='alsai'] {
   --punto-marca: #37e2e4;
-  --tinte-marca: grayscale(1) sepia(1) hue-rotate(146deg) saturate(5) brightness(1.05);
+  --tinte-marca: grayscale(1) sepia(1) hue-rotate(146deg) saturate(2.4) brightness(0.92);
 }
 
 .boton-marca[data-marca-destino='blindafon'] {
   --punto-marca: #f18b3b;
-  --tinte-marca: grayscale(1) sepia(1) hue-rotate(-10deg) saturate(4.2) brightness(1.08);
+  --tinte-marca: grayscale(1) sepia(1) hue-rotate(-10deg) saturate(2.1) brightness(0.95);
 }
 
 .boton-marca__texto {
